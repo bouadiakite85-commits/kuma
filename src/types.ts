@@ -116,6 +116,8 @@ export interface CallLog {
   duration?: string;
   dataUsedKb: number;
   codec: 'opus_8kbps' | 'opus_16kbps' | 'h264_low';
+  isEncrypted?: boolean;
+  securityProtocol?: string;
 }
 
 export interface CallSession {
@@ -134,6 +136,10 @@ export interface CallSession {
   packetsLostPercentage: number;
   iceConnectionState: 'checking' | 'connected' | 'completed' | 'disconnected';
   codec: string;
+  isEncrypted?: boolean;
+  encryptionProtocol?: string;
+  securityFingerprint?: string;
+  sasWords?: string[];
 }
 
 export interface TableColumn {

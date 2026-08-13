@@ -1,7 +1,7 @@
 import React from 'react';
 import { NetworkMode, Language, DataSavingMode } from '../types';
 import { translations } from '../data/translations';
-import { Signal, Wifi, WifiOff, Globe, Zap, Cpu, ArrowDownUp } from 'lucide-react';
+import { Signal, Wifi, WifiOff, Globe, Zap, Cpu, ArrowDownUp, Phone, Grid3x3, ShieldCheck } from 'lucide-react';
 
 interface HeaderProps {
   currentTab: 'chats' | 'status' | 'calls' | 'architecture';
@@ -15,6 +15,9 @@ interface HeaderProps {
   unreadTotal: number;
   openSettings: () => void;
   openMobileMoney: () => void;
+  currentUserPhone?: string;
+  openPhoneAuth?: () => void;
+  openDialer?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,7 +31,10 @@ export const Header: React.FC<HeaderProps> = ({
   setDataSavingMode,
   unreadTotal,
   openSettings,
-  openMobileMoney
+  openMobileMoney,
+  currentUserPhone = '+223 76 12 34 56',
+  openPhoneAuth,
+  openDialer
 }) => {
   const t = translations[language];
 
@@ -81,8 +87,21 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        {/* Right Bar Controls: Language & Mobile Money */}
+        {/* Right Bar Controls: Language & Phone Auth */}
         <div className="flex items-center gap-2">
+          {/* Phone Number Login Badge */}
+          {openPhoneAuth && (
+            <button
+              onClick={openPhoneAuth}
+              className="flex items-center gap-1 bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-2 py-0.5 rounded border border-emerald-700 text-[11px] transition-transform active:scale-95 shadow-sm"
+              title="Connexion par Numéro de Téléphone"
+            >
+              <Phone className="w-3 h-3 text-amber-400" />
+              <span className="hidden xs:inline font-mono">{currentUserPhone}</span>
+              <span className="xs:hidden">Mobile</span>
+            </button>
+          )}
+
           {/* Mobile Money Quick Access */}
           <button
             onClick={openMobileMoney}
@@ -122,27 +141,42 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <h1 className="font-extrabold text-lg text-emerald-100 leading-tight tracking-wide flex items-center gap-2">
               KUMA
-              <span className="text-[10px] font-semibold bg-emerald-800/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">
-                Mode Mali 🇲🇱
+              <span className="text-[10px] font-semibold bg-emerald-800/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                Appels E2EE 🇲🇱
               </span>
             </h1>
             <p className="text-xs text-emerald-300/80 line-clamp-1">{t.tagline}</p>
           </div>
         </div>
 
-        {/* Action Button for Architecture & DB View */}
-        <button
-          onClick={() => setCurrentTab('architecture')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-            currentTab === 'architecture'
-              ? 'bg-amber-400 text-emerald-950 border-amber-300 shadow-md font-bold'
-              : 'bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 border-emerald-700/60'
-          }`}
-        >
-          <Cpu className="w-4 h-4 text-amber-300" />
-          <span className="hidden sm:inline">{t.architecture}</span>
-          <span className="sm:hidden">Architecture</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Keypad Dialer Button in Header */}
+          {openDialer && (
+            <button
+              onClick={openDialer}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-md transition-transform active:scale-95"
+              title="Composer un numéro de téléphone"
+            >
+              <Grid3x3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Clavier</span>
+            </button>
+          )}
+
+          {/* Action Button for Architecture & DB View */}
+          <button
+            onClick={() => setCurrentTab('architecture')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+              currentTab === 'architecture'
+                ? 'bg-amber-400 text-emerald-950 border-amber-300 shadow-md font-bold'
+                : 'bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 border-emerald-700/60'
+            }`}
+          >
+            <Cpu className="w-4 h-4 text-amber-300" />
+            <span className="hidden sm:inline">{t.architecture}</span>
+            <span className="sm:hidden">Arch.</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Tabs Navigation */}

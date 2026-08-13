@@ -21,6 +21,8 @@ import { StatusesScreen } from './components/StatusesScreen';
 import { ArchitectureSchemaViewer } from './components/ArchitectureSchemaViewer';
 import { CallOverlay } from './components/CallOverlay';
 import { GroupInfoModal } from './components/GroupInfoModal';
+import { PhoneAuthModal } from './components/PhoneAuthModal';
+import { PhoneDialerModal } from './components/PhoneDialerModal';
 
 const ALL_MOCK_USERS: User[] = [
   currentUser,
@@ -68,6 +70,11 @@ export default function App() {
 
   // Active WebRTC call session state
   const [activeCall, setActiveCall] = useState<CallSession | null>(null);
+
+  // Phone Authentication & Keypad Dialer states
+  const [currentUserPhone, setCurrentUserPhone] = useState<string>('+223 76 12 34 56');
+  const [isPhoneAuthOpen, setIsPhoneAuthOpen] = useState(false);
+  const [isDialerOpen, setIsDialerOpen] = useState(false);
 
   // Group Info Modal state
   const [isGroupInfoOpen, setIsGroupInfoOpen] = useState(false);
@@ -192,16 +199,17 @@ export default function App() {
 
   const unreadTotal = chats.reduce((acc, c) => acc + c.unreadCount, 0);
 
-  // Start Call WebRTC Session
-  const handleStartCall = (type: 'audio' | 'video', customPeerName?: string, customPeerAvatar?: string) => {
+  // Start Call WebRTC Session with E2EE Security
+  const handleStartCall = (type: 'audio' | 'video', customPeerName?: string, customPhone?: string, customPeerAvatar?: string) => {
     const peerName = customPeerName || activeChat.name;
     const peerAvatar = customPeerAvatar || activeChat.avatar;
+    const peerPhone = customPhone || activeChat.participantIds.find((id) => id !== 'user_me') || '+223 76 12 34 56';
 
     setActiveCall({
       id: `call_${Date.now()}`,
       peerName,
       peerAvatar,
-      peerPhone: '+223 76 12 34 56',
+      peerPhone,
       type,
       status: 'calling',
       direction: 'outgoing',
@@ -212,13 +220,40 @@ export default function App() {
       bitrateKbps: networkMode === '2g' ? 8 : 24,
       packetsLostPercentage: 0.1,
       iceConnectionState: 'checking',
-      codec: networkMode === '2g' ? 'Opus 8kbps (Mali 2G)' : 'Opus 24kbps / H.264'
+      codec: networkMode === '2g' ? 'Opus 8kbps (Mali 2G)' : 'Opus 24kbps / H.264',
+      isEncrypted: true,
+      encryptionProtocol: 'DTLS-SRTP (256-bit AES-GCM)',
+      securityFingerprint: '8F:4A:9C:21:E0:77',
+      sasWords: ['🇲🇱 Mali', '🦁 Lion', '🛡️ Bouclier', '⚡ Rapid']
     });
 
     // Simulate WebRTC connection after 1.8 seconds
     setTimeout(() => {
       setActiveCall((prev) => (prev ? { ...prev, status: 'connected', iceConnectionState: 'completed' } : null));
     }, 1800);
+  };
+
+  // Open or create a chat with a dialed phone number
+  const handleStartChatWithPhone = (phone: string) => {
+    const existing = chats.find((c) => c.name.includes(phone) || (c.participantIds && c.participantIds.includes(phone)));
+    if (existing) {
+      setActiveChatId(existing.id);
+      setCurrentTab('chats');
+    } else {
+      const newChatId = `chat_${Date.now()}`;
+      const newChat: Chat = {
+        id: newChatId,
+        isGroup: false,
+        name: `Contact (${phone})`,
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        unreadCount: 0,
+        pinned: false,
+        participantIds: ['user_me', phone]
+      };
+      setChats([newChat, ...chats]);
+      setActiveChatId(newChatId);
+      setCurrentTab('chats');
+    }
   };
 
   // Send message handler with network/offline simulation
@@ -375,6 +410,9 @@ export default function App() {
           unreadTotal={unreadTotal}
           openSettings={() => setCurrentTab('architecture')}
           openMobileMoney={() => openMobileMoneyForRecipient('+223 76 00 00 00', activeChat.name)}
+          currentUserPhone={currentUserPhone}
+          openPhoneAuth={() => setIsPhoneAuthOpen(true)}
+          openDialer={() => setIsDialerOpen(true)}
         />
 
         {/* Main Body View based on activeTab */}
@@ -450,6 +488,7 @@ export default function App() {
               calls={mockCalls}
               language={language}
               onStartCall={(contactName, type) => handleStartCall(type, contactName)}
+              onOpenDialer={() => setIsDialerOpen(true)}
             />
           )}
 
@@ -463,6 +502,26 @@ export default function App() {
         onEndCall={() => setActiveCall(null)}
         onAcceptCall={() => setActiveCall((prev) => prev ? { ...prev, status: 'connected' } : null)}
         networkMode={networkMode}
+      />
+
+      {/* Phone Authentication Login Modal */}
+      <PhoneAuthModal
+        isOpen={isPhoneAuthOpen}
+        onClose={() => setIsPhoneAuthOpen(false)}
+        language={language}
+        currentPhone={currentUserPhone}
+        onLoginSuccess={(phone) => {
+          setCurrentUserPhone(phone);
+        }}
+      />
+
+      {/* Keypad Dialer Modal */}
+      <PhoneDialerModal
+        isOpen={isDialerOpen}
+        onClose={() => setIsDialerOpen(false)}
+        language={language}
+        onStartCall={(contactName, type, phone) => handleStartCall(type, contactName, phone)}
+        onStartChatWithPhone={handleStartChatWithPhone}
       />
 
       {/* Group Info & Admin Management Modal */}
