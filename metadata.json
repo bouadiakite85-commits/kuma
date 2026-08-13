@@ -1,0 +1,6 @@
+{
+  "name": "KUMA - Messagerie Malienne",
+  "description": "Application de messagerie instantanée adaptée au contexte culturel et réseau du Mali (Mode Low Data, Note Vocale prioritaire, Multilingue Bambara/Peul/Soninké/Tamasheq, Mobile Money, Sync Offline).",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
