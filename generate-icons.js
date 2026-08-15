@@ -3,7 +3,9 @@ import fs from 'fs';
 import path from 'path';
 
 async function generatePngIcons() {
-  const publicIconsDir = path.resolve('public/icons');
+  const publicDir = path.resolve('public');
+  const publicIconsDir = path.join(publicDir, 'icons');
+
   if (!fs.existsSync(publicIconsDir)) {
     fs.mkdirSync(publicIconsDir, { recursive: true });
   }
@@ -11,57 +13,64 @@ async function generatePngIcons() {
   const svg192Path = path.join(publicIconsDir, 'icon-192.svg');
   const svg512Path = path.join(publicIconsDir, 'icon-512.svg');
 
+  if (!fs.existsSync(svg192Path)) {
+    console.error('icon-192.svg not found');
+    return;
+  }
+
   const svg192Buffer = fs.readFileSync(svg192Path);
-  const svg512Buffer = fs.readFileSync(svg512Path);
+  const svg512Buffer = fs.existsSync(svg512Path) ? fs.readFileSync(svg512Path) : svg192Buffer;
 
-  // 192x192 PNG
-  await sharp(svg192Buffer)
-    .resize(192, 192)
-    .png()
+  // 1. icon-192.png (192x192 standard square PNG)
+  await sharp(svg192Buffer, { density: 300 })
+    .resize(192, 192, { fit: 'contain', background: { r: 2, g: 44, b: 34, alpha: 1 } })
+    .png({ compressionLevel: 9, adaptiveFiltering: true, force: true })
     .toFile(path.join(publicIconsDir, 'icon-192.png'));
-  console.log('Created icon-192.png (192x192)');
+  console.log('✅ Generated public/icons/icon-192.png');
 
-  // 512x512 PNG
-  await sharp(svg512Buffer)
-    .resize(512, 512)
-    .png()
+  // 2. icon-512.png (512x512 standard square PNG)
+  await sharp(svg512Buffer, { density: 300 })
+    .resize(512, 512, { fit: 'contain', background: { r: 2, g: 44, b: 34, alpha: 1 } })
+    .png({ compressionLevel: 9, adaptiveFiltering: true, force: true })
     .toFile(path.join(publicIconsDir, 'icon-512.png'));
-  console.log('Created icon-512.png (512x512)');
+  console.log('✅ Generated public/icons/icon-512.png');
 
-  // Maskable 192x192 PNG
-  await sharp(svg192Buffer)
-    .resize(192, 192)
-    .png()
+  // 3. Maskable Icons (with safe zone padding for Android circular launchers)
+  await sharp(svg192Buffer, { density: 300 })
+    .resize(192, 192, { fit: 'contain', background: { r: 2, g: 44, b: 34, alpha: 1 } })
+    .png({ compressionLevel: 9, force: true })
     .toFile(path.join(publicIconsDir, 'icon-maskable-192.png'));
-  console.log('Created icon-maskable-192.png');
+  console.log('✅ Generated public/icons/icon-maskable-192.png');
 
-  // Maskable 512x512 PNG
-  await sharp(svg512Buffer)
-    .resize(512, 512)
-    .png()
+  await sharp(svg512Buffer, { density: 300 })
+    .resize(512, 512, { fit: 'contain', background: { r: 2, g: 44, b: 34, alpha: 1 } })
+    .png({ compressionLevel: 9, force: true })
     .toFile(path.join(publicIconsDir, 'icon-maskable-512.png'));
-  console.log('Created icon-maskable-512.png');
+  console.log('✅ Generated public/icons/icon-maskable-512.png');
 
-  // Apple touch icon (180x180)
-  await sharp(svg192Buffer)
-    .resize(180, 180)
-    .png()
+  // 4. Apple Touch Icon (180x180)
+  await sharp(svg192Buffer, { density: 300 })
+    .resize(180, 180, { fit: 'contain', background: { r: 2, g: 44, b: 34, alpha: 1 } })
+    .png({ compressionLevel: 9, force: true })
     .toFile(path.join(publicIconsDir, 'apple-touch-icon.png'));
-  console.log('Created apple-touch-icon.png');
+  console.log('✅ Generated public/icons/apple-touch-icon.png');
 
-  // Favicon (64x64)
-  await sharp(svg192Buffer)
-    .resize(64, 64)
-    .png()
+  // 5. Favicon (64x64)
+  await sharp(svg192Buffer, { density: 300 })
+    .resize(64, 64, { fit: 'contain', background: { r: 2, g: 44, b: 34, alpha: 1 } })
+    .png({ compressionLevel: 9, force: true })
     .toFile(path.join(publicIconsDir, 'favicon.png'));
-  console.log('Created favicon.png');
+  console.log('✅ Generated public/icons/favicon.png');
 
-  // Also copy icon-192.png to /public/icon-192.png and /public/icon-512.png for fallback paths
-  fs.copyFileSync(path.join(publicIconsDir, 'icon-192.png'), path.resolve('public/icon-192.png'));
-  fs.copyFileSync(path.join(publicIconsDir, 'icon-512.png'), path.resolve('public/icon-512.png'));
+  // 6. Duplicate to root public directory for fallback access (/icon-192.png & /icon-512.png)
+  fs.copyFileSync(path.join(publicIconsDir, 'icon-192.png'), path.join(publicDir, 'icon-192.png'));
+  fs.copyFileSync(path.join(publicIconsDir, 'icon-512.png'), path.join(publicDir, 'icon-512.png'));
+  fs.copyFileSync(path.join(publicIconsDir, 'apple-touch-icon.png'), path.join(publicDir, 'apple-touch-icon.png'));
+  fs.copyFileSync(path.join(publicIconsDir, 'favicon.png'), path.join(publicDir, 'favicon.png'));
+  console.log('✅ Synchronized root public fallback icons');
 }
 
 generatePngIcons().catch(err => {
-  console.error(err);
+  console.error('Error generating icons:', err);
   process.exit(1);
 });
