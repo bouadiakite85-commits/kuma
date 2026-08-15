@@ -1,12 +1,25 @@
 export type Language = 'fr' | 'bm' | 'ff' | 'sn' | 'tm';
 
-export type NetworkMode = '4g' | '3g' | '2g' | 'offline';
+export type NetworkMode = 'infinig' | '6g' | '5g' | 'starlink' | '4g' | '3g' | '2g' | 'offline';
 
 export type DataSavingMode = 'normal' | 'low_data' | 'ultra_low_data';
 
 export type MessageStatus = 'pending_offline' | 'sent' | 'delivered' | 'read';
 
 export type MessageType = 'text' | 'voice' | 'image' | 'video' | 'mobile_money' | 'location';
+
+export interface Contact {
+  id: string;
+  name: string;
+  phone: string;
+  avatar: string;
+  bio?: string;
+  category?: 'famille' | 'travail' | 'ami' | 'commerce' | 'autre';
+  isFavorite?: boolean;
+  online?: boolean;
+  lastSeen?: string;
+  addedAt?: string;
+}
 
 export interface User {
   id: string;

@@ -4,6 +4,8 @@ export interface Translations {
   appName: string;
   tagline: string;
   chats: string;
+  contacts: string;
+  addContact: string;
   status: string;
   calls: string;
   architecture: string;
@@ -41,6 +43,8 @@ export const translations: Record<Language, Translations> = {
     appName: "KUMA",
     tagline: "Messagerie Rapide & Economique du Mali",
     chats: "Discussions",
+    contacts: "Contacts",
+    addContact: "Nouveau Contact",
     status: "Statuts",
     calls: "Appels",
     architecture: "Architecture & BDD",
@@ -76,6 +80,8 @@ export const translations: Record<Language, Translations> = {
     appName: "KUMA",
     tagline: "Mali kənə barokɛlan teliman n'a sɔngɔ dɔgɔman",
     chats: "Kuma-so",
+    contacts: "Mɔgɔw",
+    addContact: "Mɔgɔ kura fara a kan",
     status: "Kibaru-Lakan",
     calls: "Wele-wele",
     architecture: "Sistɛmu Dabali",
@@ -111,6 +117,8 @@ export const translations: Record<Language, Translations> = {
     appName: "KUMA",
     tagline: "Noldu e Wawtu do Mali",
     chats: "Haalaaji",
+    contacts: "Yimɓe",
+    addContact: "Ɓeydu Neɗɗo Keso",
     status: "Mbaydi",
     calls: "Noddaali",
     architecture: "Mahdi Sisteem",
@@ -146,6 +154,8 @@ export const translations: Record<Language, Translations> = {
     appName: "KUMA",
     tagline: "Mali xaran-kommo yaxare kinne",
     chats: "Kili-kili",
+    contacts: "Moxonnu",
+    addContact: "Moxon Kura",
     status: "Xaibarunu",
     calls: "Cilagunu",
     architecture: "Sistem-Maxa",
@@ -181,6 +191,8 @@ export const translations: Record<Language, Translations> = {
     appName: "KUMA",
     tagline: "Awal wa Awal en Mali",
     chats: "Isalan",
+    contacts: "Middawen",
+    addContact: "Ernu Amadduy",
     status: "Taneft",
     calls: "Tighriwin",
     architecture: "Mazen n Sistem",

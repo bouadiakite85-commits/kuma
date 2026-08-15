@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CallSession, NetworkMode } from '../types';
+import { NETWORK_PRESETS } from '../data/networkPresets';
 import {
   Mic,
   MicOff,
@@ -14,7 +15,8 @@ import {
   ShieldCheck,
   Zap,
   PhoneIncoming,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react';
 
 interface CallOverlayProps {
@@ -179,9 +181,11 @@ export const CallOverlay: React.FC<CallOverlayProps> = ({
           <span className="bg-emerald-800 text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold">
             WebRTC {callSession.type === 'video' ? 'Vidéo' : 'Audio'}
           </span>
-          <span className="text-emerald-300 text-[11px] flex items-center gap-1">
+          <span className={`text-[11px] flex items-center gap-1 font-bold ${
+            networkMode === 'infinig' ? 'text-fuchsia-300 animate-pulse' : 'text-emerald-300'
+          }`}>
             <Wifi className="w-3 h-3 text-emerald-400" />
-            {networkMode === '2g' ? '8 kbps (Opus 2G)' : networkMode === '3g' ? '24 kbps (3G)' : '64 kbps HD (4G)'}
+            {NETWORK_PRESETS[networkMode]?.audioCodec || 'Opus Codec'} ({NETWORK_PRESETS[networkMode]?.bandwidthDisplay})
           </span>
         </div>
 

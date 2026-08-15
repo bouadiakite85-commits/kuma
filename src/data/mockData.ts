@@ -1,4 +1,86 @@
-import { Chat, User, StatusStory, CallLog, TableSchema } from '../types';
+import { Chat, User, Contact, StatusStory, CallLog, TableSchema } from '../types';
+
+export const mockContacts: Contact[] = [
+  {
+    id: 'contact_oumou',
+    name: 'Oumou Diarra',
+    phone: '+223 76 12 34 56',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    bio: 'Enseignante Bamanankan • Bamako',
+    category: 'ami',
+    isFavorite: true,
+    online: true,
+    addedAt: '10 Août 2026'
+  },
+  {
+    id: 'contact_bakary',
+    name: 'Bakary Coulibaly',
+    phone: '+223 66 44 22 11',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    bio: 'Badalabougou • Grin du soir ☕',
+    category: 'ami',
+    isFavorite: true,
+    online: true,
+    addedAt: '12 Août 2026'
+  },
+  {
+    id: 'contact_fatou',
+    name: 'Fatoumata Traoré',
+    phone: '+223 70 88 99 00',
+    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80',
+    bio: 'Commerce Bogolan & Tissus Médina Coura',
+    category: 'commerce',
+    isFavorite: false,
+    online: false,
+    lastSeen: 'Hier à 19:40',
+    addedAt: '05 Août 2026'
+  },
+  {
+    id: 'contact_sory',
+    name: 'Sory Keita',
+    phone: '+223 75 33 22 11',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    bio: 'Famille Keita Ségou • Disponible',
+    category: 'famille',
+    isFavorite: true,
+    online: true,
+    addedAt: '01 Août 2026'
+  },
+  {
+    id: 'contact_drissa',
+    name: 'Drissa Camara',
+    phone: '+223 78 90 12 34',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
+    bio: 'Ingénieur Télécom Mali • KUMA Tech',
+    category: 'travail',
+    isFavorite: false,
+    online: true,
+    addedAt: '14 Août 2026'
+  },
+  {
+    id: 'contact_aminata',
+    name: 'Aminata Maïga',
+    phone: '+223 65 43 21 00',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    bio: 'Gao & Bamako • Santé Communautaire',
+    category: 'travail',
+    isFavorite: false,
+    online: false,
+    lastSeen: 'Il y a 2h',
+    addedAt: '08 Août 2026'
+  },
+  {
+    id: 'contact_mahamadou',
+    name: 'Mahamadou Koné',
+    phone: '+223 71 22 33 44',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    bio: 'Transfert d\'argent & Kiosque Orange/Moov/Wave',
+    category: 'commerce',
+    isFavorite: false,
+    online: true,
+    addedAt: '03 Août 2026'
+  }
+];
 
 export const currentUser: User = {
   id: 'user_me',

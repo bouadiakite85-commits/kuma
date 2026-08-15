@@ -23,11 +23,12 @@ import {
   Globe,
   Terminal,
   Copy,
-  Check
+  Check,
+  Radio
 } from 'lucide-react';
 
 export const ArchitectureSchemaViewer: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'stack' | 'architecture' | 'schema' | 'playstore'>('playstore');
+  const [activeTab, setActiveTab] = useState<'stack' | 'architecture' | 'schema' | 'playstore' | 'autonomous'>('autonomous');
   const [playstoreSubTab, setPlaystoreSubTab] = useState<'manifest' | 'twa' | 'assetlinks' | 'android_manifest' | 'cli_guide'>('manifest');
   const [selectedTable, setSelectedTable] = useState<string>(kumaDatabaseSchema[0].tableName);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -59,13 +60,22 @@ export const ArchitectureSchemaViewer: React.FC = () => {
             <Cpu className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-black text-base text-amber-300">Spécifications Techniques & Play Store "KUMA Mali"</h2>
-            <p className="text-xs text-emerald-200">Web App Manifest, TWA (.AAB) & Architecture Senior Software Engineer</p>
+            <h2 className="font-black text-base text-amber-300">Architecture Autonome KUMA & Spécifications</h2>
+            <p className="text-xs text-emerald-200">Protocole KUMA ↔ KUMA Décentralisé • Mode Hors-Ligne • Google Play (.AAB)</p>
           </div>
         </div>
 
         {/* Subtabs */}
         <div className="flex flex-wrap bg-emerald-900/80 p-1 rounded-xl text-xs font-bold border border-emerald-700/60 gap-1">
+          <button
+            onClick={() => setActiveTab('autonomous')}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeTab === 'autonomous' ? 'bg-amber-400 text-emerald-950 shadow-md font-black' : 'text-emerald-200 hover:text-white'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>KUMA ↔ KUMA Autonome & Offline 🌟</span>
+          </button>
           <button
             onClick={() => setActiveTab('playstore')}
             className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
@@ -73,7 +83,7 @@ export const ArchitectureSchemaViewer: React.FC = () => {
             }`}
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>1. Google Play & AAB Manifest 🤖</span>
+            <span>Play Store & AAB 🤖</span>
           </button>
           <button
             onClick={() => setActiveTab('stack')}
@@ -81,7 +91,7 @@ export const ArchitectureSchemaViewer: React.FC = () => {
               activeTab === 'stack' ? 'bg-amber-400 text-emerald-950 shadow-md font-black' : 'text-emerald-200 hover:text-white'
             }`}
           >
-            2. Stack Technique
+            Stack Technique
           </button>
           <button
             onClick={() => setActiveTab('architecture')}
@@ -89,7 +99,7 @@ export const ArchitectureSchemaViewer: React.FC = () => {
               activeTab === 'architecture' ? 'bg-amber-400 text-emerald-950 shadow-md font-black' : 'text-emerald-200 hover:text-white'
             }`}
           >
-            3. Architecture Système
+            Flux Système
           </button>
           <button
             onClick={() => setActiveTab('schema')}
@@ -97,10 +107,103 @@ export const ArchitectureSchemaViewer: React.FC = () => {
               activeTab === 'schema' ? 'bg-amber-400 text-emerald-950 shadow-md font-black' : 'text-emerald-200 hover:text-white'
             }`}
           >
-            4. Schéma BDD
+            Schéma BDD
           </button>
         </div>
       </div>
+
+      {/* TAB 0 (AUTONOMOUS KUMA ↔ KUMA & OFFLINE MESH) */}
+      {activeTab === 'autonomous' && (
+        <div className="space-y-4 animate-fadeIn">
+          {/* Main Hero Card */}
+          <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 p-5 rounded-2xl border border-amber-400/40 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-amber-300 font-extrabold text-base">
+                <ShieldCheck className="w-5 h-5 text-amber-400" />
+                <span>Architecture 100% Autonome (KUMA ↔ KUMA) & Mode Hors-Ligne</span>
+              </div>
+              <span className="bg-amber-400 text-emerald-950 px-2.5 py-0.5 rounded-full font-black text-xs">
+                Zero Cloud Vendor Lock-in
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              L'application <strong>KUMA</strong> est conçue pour fonctionner de manière totalement autonome : les applications KUMA communiquent <strong>directement entre elles (Pair-à-Pair)</strong> sans dépendre d'une infrastructure centrale vulnérable. En cas d'absence d'Internet (zones blanches ou coupure réseau), KUMA bascule en <strong>mode Hors-Ligne</strong> avec persistance locale intégrale et file d'attente (Outbox) synchronisée dès reconnexion ou via réseau maillé local <strong>KUMA Mesh</strong> (Wi-Fi Direct / Bluetooth / BroadcastChannel).
+            </p>
+          </div>
+
+          {/* 3 Pillars of KUMA Autonomy */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Pillar 1: P2P Communication */}
+            <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                <Radio className="w-4 h-4 text-emerald-400" />
+                <span>1. Protocole P2P KUMA ↔ KUMA</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Transmission directe de messages chiffrés E2EE, d'accusés de réception, de signaux d'appels WebRTC et de statuts entre instances KUMA via canaux locaux sécurisés et WebRTC DataChannels.
+              </p>
+              <div className="text-[11px] font-mono text-emerald-300 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                Protocole: KUMA-E2EE-P2P (Double Ratchet)
+              </div>
+            </div>
+
+            {/* Pillar 2: Local Database */}
+            <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                <Database className="w-4 h-4 text-amber-400" />
+                <span>2. Base Locale SQLite / IndexedDB</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Toutes les discussions, contacts, historiques d'appels et notes vocales sont stockés 100% sur la mémoire de l'appareil. L'utilisateur garde la souveraineté totale de ses données.
+              </p>
+              <div className="text-[11px] font-mono text-emerald-300 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                Stockage: SQLite Chiffré AES-256
+              </div>
+            </div>
+
+            {/* Pillar 3: Offline Outbox Queue */}
+            <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
+                <Zap className="w-4 h-4 text-cyan-300" />
+                <span>3. File d'Attente Store-and-Forward</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Les messages écrits sans réseau sont conservés avec horodatage dans l'Outbox (état 🕒 <code className="text-amber-300">pending_offline</code>) et expédiés automatiquement dès le retour du réseau (2G/3G/4G/5G/Starlink/InfiniG).
+              </p>
+              <div className="text-[11px] font-mono text-emerald-300 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                Auto-Sync: Priorité 2G & Relais Mesh
+              </div>
+            </div>
+          </div>
+
+          {/* Offline Mesh Flow Schema */}
+          <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3">
+            <h3 className="font-extrabold text-sm text-amber-300 flex items-center gap-2">
+              <Radio className="w-4 h-4 text-emerald-400" />
+              Fonctionnement Détaillé du Mode Hors-Ligne & Relais KUMA Mesh
+            </h3>
+            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-2 text-slate-200">
+              <div className="text-emerald-400 font-bold">1. Mode Hors-Ligne Déclenché (Réseau coupé ou Manuel) :</div>
+              <div className="pl-4 text-slate-300">
+                → L'application KUMA reste totalement réactive : enregistrement audio Opus, rédaction de messages, consultation de l'historique.<br />
+                → Les messages reçoivent le badge 🕒 "En attente locale (Outbox)".
+              </div>
+
+              <div className="text-amber-400 font-bold mt-2">2. Détection d'un pair KUMA de proximité (KUMA Mesh P2P) :</div>
+              <div className="pl-4 text-slate-300">
+                → Les téléphones KUMA proches (rayon de 50m) se découvrent mutuellement via Wi-Fi Direct / Local Broadcast.<br />
+                → Les messages destinés aux pairs locaux sont transmis directement de téléphone à téléphone sans passer par Internet !
+              </div>
+
+              <div className="text-cyan-400 font-bold mt-2">3. Reconnexion Réseau (2G, 3G, 4G, 5G, Starlink, ∞G) :</div>
+              <div className="pl-4 text-slate-300">
+                → Le moteur d'envoi différé (Outbox Flusher) dépile automatiquement la file d'attente.<br />
+                → Les accusés de réception passent en ✓ (Envoyé) puis ✓✓ (Délivré et Lu).
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* TAB 1 (PLAYSTORE & WEB APP MANIFEST) */}
       {activeTab === 'playstore' && (
@@ -383,7 +486,7 @@ export const ArchitectureSchemaViewer: React.FC = () => {
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-white">Elixir / Erlang OTP (Phoenix Framework)</strong> ou <strong className="text-white">Go (Golang)</strong>: Moteur de messagerie ultra-robuste inspiré de l'architecture originale de WhatsApp.
+                    <strong className="text-white">Elixir / Erlang OTP (Phoenix Framework)</strong> ou <strong className="text-white">Go (Golang)</strong>: Moteur de messagerie distribué ultra-robuste avec gestion native de millions de connexions concurrentes.
                   </div>
                 </li>
                 <li className="flex items-start gap-2">

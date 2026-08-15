@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PhoneCall, Video, MessageSquare, X, Delete, ShieldCheck, Zap, User } from 'lucide-react';
+import { PhoneCall, Video, MessageSquare, X, Delete, ShieldCheck, Zap, User, UserPlus } from 'lucide-react';
 import { Language } from '../types';
 
 interface PhoneDialerModalProps {
@@ -7,6 +7,7 @@ interface PhoneDialerModalProps {
   onClose: () => void;
   onStartCall: (contactName: string, type: 'audio' | 'video', phone: string) => void;
   onStartChatWithPhone?: (phone: string) => void;
+  onSaveAsContact?: (phone: string) => void;
   language: Language;
 }
 
@@ -15,6 +16,7 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
   onClose,
   onStartCall,
   onStartChatWithPhone,
+  onSaveAsContact,
   language
 }) => {
   if (!isOpen) return null;
@@ -84,7 +86,23 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center justify-center gap-1 text-[10px] text-emerald-400 font-mono mt-2">
+          {/* Save as contact quick prompt */}
+          {typedDigits && onSaveAsContact && (
+            <div className="pt-1">
+              <button
+                onClick={() => {
+                  onSaveAsContact(fullPhone);
+                  onClose();
+                }}
+                className="text-[11px] text-amber-300 hover:text-amber-200 font-bold inline-flex items-center gap-1 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800"
+              >
+                <UserPlus className="w-3 h-3" />
+                <span>Enregistrer dans les contacts</span>
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center justify-center gap-1 text-[10px] text-emerald-400 font-mono mt-1">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>Sécurisé DTLS-SRTP • Codec Opus 8-24 kbps</span>
           </div>

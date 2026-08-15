@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Chat, Message, Language, NetworkMode, DataSavingMode, MessageType, MessageReplyPreview } from '../types';
 import { translations } from '../data/translations';
+import { NETWORK_PRESETS } from '../data/networkPresets';
 import {
   Send,
   Mic,
@@ -240,10 +241,16 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
       </div>
 
       {/* Encryption & Low-data Notice */}
-      <div className="bg-amber-100/90 text-amber-900 px-3 py-1.5 text-[11px] flex items-center justify-center gap-1.5 border-b border-amber-200/80 shadow-xs">
-        <Lock className="w-3 h-3 text-amber-700" />
+      <div className={`px-3 py-1.5 text-[11px] flex items-center justify-center gap-1.5 border-b shadow-xs ${
+        networkMode === 'infinig'
+          ? 'bg-gradient-to-r from-purple-900 via-fuchsia-900 to-indigo-900 text-fuchsia-200 border-fuchsia-500'
+          : 'bg-amber-100/90 text-amber-900 border-amber-200/80'
+      }`}>
+        <Lock className="w-3 h-3 text-amber-600" />
         <span className="font-medium">{t.encryptedE2E}</span>
-        <span className="text-emerald-800 font-bold ml-1">• Low-Data Opus 8kbps</span>
+        <span className="font-bold ml-1">
+          • {NETWORK_PRESETS[networkMode]?.shortName || 'Réseau Mali'} ({NETWORK_PRESETS[networkMode]?.bandwidthDisplay})
+        </span>
       </div>
 
       {/* Messages Scroll Area */}
