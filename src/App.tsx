@@ -31,6 +31,7 @@ import { OfflineOutboxModal } from './components/OfflineOutboxModal';
 import { KumaAutonomousModal } from './components/KumaAutonomousModal';
 import { kumaP2P, KumaP2PPacket } from './lib/kumaAutonomousP2P';
 import { kumaOfflineQueue, QueuedOfflineItem } from './lib/offlineQueue';
+import { kumaSounds } from './lib/soundEffects';
 
 const ALL_MOCK_USERS: User[] = [
   defaultUser,
@@ -562,13 +563,14 @@ export default function App() {
     }
   };
 
-  // Send message handler with offline Outbox queue and P2P transmission
+  // Send message handler with offline Outbox queue, real-time sound effects, and P2P transmission
   const handleSendMessage = (type: MessageType, content?: string, extraData?: any) => {
     if (!activeChatId) return;
 
     const isOffline = networkMode === 'offline';
+    const newMsgId = `m_${Date.now()}`;
     const newMsg: Message = {
-      id: `m_${Date.now()}`,
+      id: newMsgId,
       chatId: activeChatId,
       senderId: authenticatedUser.id,
       type,
@@ -580,6 +582,13 @@ export default function App() {
       ...(type === 'voice' && { voiceNote: extraData }),
       ...(type === 'mobile_money' && { mobileMoney: extraData })
     };
+
+    // Sound effect on send
+    if (type === 'mobile_money') {
+      kumaSounds.playMoneySuccess();
+    } else {
+      kumaSounds.playSent();
+    }
 
     // Save to local message state
     setMessagesMap((prev) => ({
@@ -612,15 +621,33 @@ export default function App() {
       return;
     }
 
-    // If online: broadcast via KUMA Autonomous P2P
+    // Real-time progressive delivery receipt transition: sent -> delivered (✓✓)
+    setTimeout(() => {
+      setMessagesMap((prev) => ({
+        ...prev,
+        [activeChatId]: (prev[activeChatId] || []).map((m) =>
+          m.id === newMsgId ? { ...m, status: 'delivered' } : m
+        )
+      }));
+    }, 350);
+
+    // Broadcast via KUMA Autonomous P2P
     const targetRecipientId = activeChat.participantIds.find((id) => id !== authenticatedUser.id) || 'user_oumou';
     kumaP2P.sendMessage(targetRecipientId, newMsg);
 
-    // Local simulated peer reply for single-user interactive experience
-    const typingDelay = networkMode === 'infinig' ? 200 : 800;
-    const replyDelay = networkMode === 'infinig' ? 600 : 2200;
+    // Local simulated peer reply for live interactive experience
+    const typingDelay = networkMode === 'infinig' ? 200 : 700;
+    const replyDelay = networkMode === 'infinig' ? 600 : 2000;
 
+    // Contact starts typing -> mark user's message as read (blue ✓✓)
     setTimeout(() => {
+      setMessagesMap((prev) => ({
+        ...prev,
+        [activeChatId]: (prev[activeChatId] || []).map((m) =>
+          m.id === newMsgId ? { ...m, status: 'read' } : m
+        )
+      }));
+
       setChats((prevChats) =>
         prevChats.map((c) =>
           c.id === activeChatId ? { ...c, isTyping: true, typingUserName: activeChat.name } : c
@@ -635,16 +662,28 @@ export default function App() {
         )
       );
 
+      // Generate dynamic response based on sent message
+      let replyText = "Bien reçu ! L'application KUMA communique en direct et de manière fluide.";
+      if (type === 'mobile_money') {
+        replyText = language === 'bm'
+          ? "I ni ce kosɛbɛ ! Wari sara kɛra kɛnɛ kan (Mobile Money sɛbɛn sera)."
+          : `Merci beaucoup ! J'ai bien reçu la notification de transfert de ${extraData?.amountFcfa?.toLocaleString()} FCFA.`;
+      } else if (type === 'voice') {
+        replyText = language === 'bm'
+          ? "N ye i ka kuma-lama mɛn ! A kɛra kɛnɛ kan Opus 8kbps la."
+          : "J'ai bien écouté ta note vocale ! Le son Opus HD est super clair même en 2G.";
+      } else if (language === 'bm') {
+        replyText = "Aw ni ce ! KUMA bɛ taa ka ɲɛ Mali kənə baro la.";
+      } else if (networkMode === 'infinig') {
+        replyText = "⚡ Reçu instantanément via le protocole autonome KUMA (∞G Quantique) !";
+      }
+
       const replyMsg: Message = {
         id: `m_reply_${Date.now()}`,
         chatId: activeChatId,
         senderId: targetRecipientId,
         type: 'text',
-        content: language === 'bm'
-          ? "Aw ni ce ! KUMA bɛ taa ka ɲɛ Mali kənə baro la."
-          : networkMode === 'infinig'
-          ? "⚡ Reçu instantanément via le protocole autonome KUMA (∞G Quantique) !"
-          : "Bien reçu ! L'application KUMA communique en direct et de manière autonome.",
+        content: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         status: 'read',
         encrypted: true
@@ -654,6 +693,9 @@ export default function App() {
         ...prev,
         [activeChatId]: [...(prev[activeChatId] || []), replyMsg]
       }));
+
+      // Sound and vibration when receiving reply
+      kumaSounds.playReceived();
     }, replyDelay);
   };
 

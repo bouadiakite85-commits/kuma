@@ -120,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
               ? 'bg-slate-800 text-slate-400 border border-slate-700'
               : 'bg-emerald-950 text-emerald-300 border border-emerald-700/50'
           }`}>
-            <span>{activePreset.latencyMs}ms</span>
+            <span>{activePreset.pingMs}ms</span>
             <span className="opacity-60">|</span>
             <span>{activePreset.bandwidthDisplay}</span>
           </span>

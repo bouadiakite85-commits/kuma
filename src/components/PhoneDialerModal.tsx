@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PhoneCall, Video, MessageSquare, X, Delete, ShieldCheck, UserPlus, Globe, ChevronDown } from 'lucide-react';
 import { Language } from '../types';
 import { ALL_INTERNATIONAL_COUNTRIES, CountryInfo } from '../lib/countryCodes';
+import { kumaSounds } from '../lib/soundEffects';
 
 interface PhoneDialerModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
   const fullPhone = `${selectedCountry.code} ${typedDigits.trim()}`;
 
   const handleKeyPress = (val: string) => {
+    kumaSounds.playDialTone(650 + (parseInt(val) || 5) * 40);
     if (typedDigits.length < 15) {
       const clean = (typedDigits + val).replace(/\s/g, '');
       const formatted = clean.match(/.{1,2}/g)?.join(' ') || clean;
@@ -38,6 +40,7 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
   };
 
   const handleDelete = () => {
+    kumaSounds.playDialTone(400);
     if (typedDigits.length > 0) {
       const clean = typedDigits.replace(/\s/g, '');
       const sliced = clean.slice(0, -1);
