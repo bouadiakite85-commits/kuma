@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 export const ArchitectureSchemaViewer: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'stack' | 'architecture' | 'schema' | 'playstore' | 'autonomous'>('autonomous');
+  const [activeTab, setActiveTab] = useState<'stack' | 'architecture' | 'schema' | 'playstore' | 'autonomous' | 'firebase'>('firebase');
   const [playstoreSubTab, setPlaystoreSubTab] = useState<'manifest' | 'twa' | 'assetlinks' | 'android_manifest' | 'cli_guide'>('manifest');
   const [selectedTable, setSelectedTable] = useState<string>(kumaDatabaseSchema[0].tableName);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -67,6 +67,15 @@ export const ArchitectureSchemaViewer: React.FC = () => {
 
         {/* Subtabs */}
         <div className="flex flex-wrap bg-emerald-900/80 p-1 rounded-xl text-xs font-bold border border-emerald-700/60 gap-1">
+          <button
+            onClick={() => setActiveTab('firebase')}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeTab === 'firebase' ? 'bg-amber-400 text-emerald-950 shadow-md font-black' : 'text-emerald-200 hover:text-white'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Firebase Config 🔥</span>
+          </button>
           <button
             onClick={() => setActiveTab('autonomous')}
             className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
@@ -111,6 +120,150 @@ export const ArchitectureSchemaViewer: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* TAB FIREBASE (CONFIG & CLOUD SERVICES) */}
+      {activeTab === 'firebase' && (
+        <div className="space-y-4 animate-fadeIn">
+          {/* Main Hero Card */}
+          <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-emerald-950 p-5 rounded-2xl border border-amber-400/50 shadow-xl space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 text-amber-300 font-extrabold text-base">
+                <Zap className="w-5 h-5 text-amber-400" />
+                <span>Configuration Firebase KUMA Mali (kuma-12c6c)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs px-2.5 py-1 rounded-full font-mono font-bold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Projet Actif: kuma-12c6c
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Le projet Firebase <strong>kuma-12c6c</strong> est connecté à l'application KUMA avec authentification par numéro de téléphone, base de données Firestore temps réel, télémétrie Analytics (<code className="text-amber-300">G-SG0WCKKGH5</code>) et Cloud Storage.
+            </p>
+          </div>
+
+          {/* Config Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2">
+              <div className="text-xs font-bold text-amber-300 flex items-center justify-between">
+                <span>🔥 Project ID & Auth Domain</span>
+                <button
+                  onClick={() => handleCopy("kuma-12c6c", "fb_project")}
+                  className="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded font-mono"
+                >
+                  {copiedKey === 'fb_project' ? 'Copié !' : 'Copier ID'}
+                </button>
+              </div>
+              <div className="font-mono text-xs text-emerald-300 bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1">
+                <div>projectId: <strong className="text-white">kuma-12c6c</strong></div>
+                <div>authDomain: <strong className="text-slate-300">kuma-12c6c.firebaseapp.com</strong></div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2">
+              <div className="text-xs font-bold text-cyan-300 flex items-center justify-between">
+                <span>📊 Analytics & Messaging Sender</span>
+                <button
+                  onClick={() => handleCopy("G-SG0WCKKGH5", "fb_analytics")}
+                  className="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded font-mono"
+                >
+                  {copiedKey === 'fb_analytics' ? 'Copié !' : 'Copier'}
+                </button>
+              </div>
+              <div className="font-mono text-xs text-cyan-300 bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1">
+                <div>measurementId: <strong className="text-white">G-SG0WCKKGH5</strong></div>
+                <div>messagingSenderId: <strong className="text-slate-300">377105046343</strong></div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2">
+              <div className="text-xs font-bold text-emerald-300 flex items-center justify-between">
+                <span>📦 Storage Bucket & App ID</span>
+                <button
+                  onClick={() => handleCopy("kuma-12c6c.firebasestorage.app", "fb_storage")}
+                  className="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded font-mono"
+                >
+                  {copiedKey === 'fb_storage' ? 'Copié !' : 'Copier'}
+                </button>
+              </div>
+              <div className="font-mono text-xs text-emerald-300 bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1">
+                <div>storageBucket: <strong className="text-slate-300">kuma-12c6c.firebasestorage.app</strong></div>
+                <div className="truncate">appId: <strong className="text-slate-300">1:377105046343:web:332aa7e00d7dc96e6e4a62</strong></div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2">
+              <div className="text-xs font-bold text-yellow-300 flex items-center justify-between">
+                <span>🔑 API Key Web</span>
+                <button
+                  onClick={() => handleCopy("AIzaSyACBdrU35_ycjADvEoDu-mzmA5NKveIhEA", "fb_key")}
+                  className="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded font-mono"
+                >
+                  {copiedKey === 'fb_key' ? 'Copié !' : 'Copier'}
+                </button>
+              </div>
+              <div className="font-mono text-xs text-yellow-200 bg-slate-950 p-2 rounded-lg border border-slate-800 truncate">
+                apiKey: AIzaSyACBdrU35_ycjADvEoDu-mzmA5NKveIhEA
+              </div>
+            </div>
+          </div>
+
+          {/* Code Snippet Box */}
+          <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-amber-300">
+              <span className="flex items-center gap-1.5 font-mono">
+                <Code className="w-4 h-4 text-emerald-400" />
+                Initialisation Firebase SDK (/src/lib/firebase.ts)
+              </span>
+              <button
+                onClick={() => handleCopy(`import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyACBdrU35_ycjADvEoDu-mzmA5NKveIhEA",
+  authDomain: "kuma-12c6c.firebaseapp.com",
+  projectId: "kuma-12c6c",
+  storageBucket: "kuma-12c6c.firebasestorage.app",
+  messagingSenderId: "377105046343",
+  appId: "1:377105046343:web:332aa7e00d7dc96e6e4a62",
+  measurementId: "G-SG0WCKKGH5"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);`, 'fb_code')}
+                className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-xs px-2.5 py-1 rounded-lg font-bold"
+              >
+                {copiedKey === 'fb_code' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                <span>Copier Snippet</span>
+              </button>
+            </div>
+            <pre className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] font-mono text-emerald-300 overflow-x-auto leading-relaxed">
+{`// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyACBdrU35_ycjADvEoDu-mzmA5NKveIhEA",
+  authDomain: "kuma-12c6c.firebaseapp.com",
+  projectId: "kuma-12c6c",
+  storageBucket: "kuma-12c6c.firebasestorage.app",
+  messagingSenderId: "377105046343",
+  appId: "1:377105046343:web:332aa7e00d7dc96e6e4a62",
+  measurementId: "G-SG0WCKKGH5"
+};
+
+// Initialize Firebase
+export const app = initializeApp(firebaseConfig);
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+export const db = getFirestore(app);
+export const auth = getAuth(app);`}
+            </pre>
+          </div>
+        </div>
+      )}
 
       {/* TAB 0 (AUTONOMOUS KUMA ↔ KUMA & OFFLINE MESH) */}
       {activeTab === 'autonomous' && (

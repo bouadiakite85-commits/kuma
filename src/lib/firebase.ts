@@ -1,11 +1,17 @@
 /**
  * Configuration & Module Backend Firebase pour KUMA (Mali)
+ * Initialisé avec le projet Firebase de production : kuma-12c6c
  * Supporte :
  * - Firebase Authentication (OTP SMS Numéros +223)
  * - Cloud Firestore (Realtime chats, messages, status, signaling WebRTC)
- * - Firebase Cloud Messaging (FCM Notifications Push)
+ * - Firebase Analytics (Télémétrie et métriques réseau Mali)
  * - Firebase Storage (Médias WebP, Notes Vocales Opus)
  */
+
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 export interface FirebaseConfig {
   apiKey: string;
@@ -14,20 +20,44 @@ export interface FirebaseConfig {
   storageBucket: string;
   messagingSenderId: string;
   appId: string;
+  measurementId?: string;
 }
 
-// Fallback configuration templates
-export const defaultFirebaseConfig: FirebaseConfig = {
-  apiKey: "AIzaSyKUMA_MALI_FIREBASE_KEY_EXAMPLE",
-  authDomain: "kuma-mali-app.firebaseapp.com",
-  projectId: "kuma-mali-app",
-  storageBucket: "kuma-mali-app.appspot.com",
-  messagingSenderId: "202608139988",
-  appId: "1:202608139988:android:a1b2c3d4e5f67890"
+// Your web app's Firebase configuration
+export const firebaseConfig: FirebaseConfig = {
+  apiKey: "AIzaSyACBdrU35_ycjADvEoDu-mzmA5NKveIhEA",
+  authDomain: "kuma-12c6c.firebaseapp.com",
+  projectId: "kuma-12c6c",
+  storageBucket: "kuma-12c6c.firebasestorage.app",
+  messagingSenderId: "377105046343",
+  appId: "1:377105046343:web:332aa7e00d7dc96e6e4a62",
+  measurementId: "G-SG0WCKKGH5"
 };
 
+// Initialize Firebase App instance
+export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+
+// Initialize Firestore Database & Auth
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+
+// Safe Analytics Initialization
+export let analytics: any = null;
+if (typeof window !== "undefined") {
+  isAnalyticsSupported()
+    .then((supported) => {
+      if (supported) {
+        analytics = getAnalytics(app);
+        console.log("[Firebase Analytics] Initialisé avec succès pour kuma-12c6c (G-SG0WCKKGH5)");
+      }
+    })
+    .catch(() => {
+      // Ignore analytics unsupported environment (e.g. iframe)
+    });
+}
+
 /**
- * Service de gestion OTP SMS Mali (+223)
+ * Service de gestion OTP SMS Mali (+223) & Firebase Auth
  */
 export class PhoneAuthService {
   private static verificationId: string | null = null;
@@ -36,7 +66,7 @@ export class PhoneAuthService {
     console.log(`[Firebase Auth] Envoi du code OTP SMS au numéro ${phoneNumber}...`);
     // Format E.164 Mali check (+223 XX XX XX XX)
     const cleanPhone = phoneNumber.replace(/\s+/g, '');
-    if (!cleanPhone.startsWith('+223') && !cleanPhone.startsWith('223')) {
+    if (!cleanPhone.startsWith('+223') && !cleanPhone.startsWith('223') && cleanPhone.length < 8) {
       return {
         success: false,
         verificationId: '',
@@ -95,11 +125,11 @@ export class WebRTCSignalingService {
   }
 
   static sendOffer(roomId: string, offerSdp: string) {
-    console.log(`[WebRTC Signaling] Envoi de l'offre SDP vers Firestore/RealtimeDB pour room ${roomId}`);
+    console.log(`[WebRTC Signaling] Envoi de l'offre SDP vers Firestore pour room ${roomId}`);
   }
 
   static sendAnswer(roomId: string, answerSdp: string) {
-    console.log(`[WebRTC Signaling] Envoi de la réponse SDP vers Firestore/RealtimeDB pour room ${roomId}`);
+    console.log(`[WebRTC Signaling] Envoi de la réponse SDP vers Firestore pour room ${roomId}`);
   }
 }
 
@@ -108,7 +138,7 @@ export class WebRTCSignalingService {
  */
 export class FcmNotificationService {
   static async requestPermission(): Promise<boolean> {
-    if ('Notification' in window) {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
       try {
         const permission = await Notification.requestPermission();
         return permission === 'granted';
@@ -121,7 +151,7 @@ export class FcmNotificationService {
 
   static showLocalNotification(title: string, body: string, icon?: string) {
     console.log(`[FCM Notification] ${title}: ${body}`);
-    if ('Notification' in window && Notification.permission === 'granted') {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
         new Notification(title, {
           body,
