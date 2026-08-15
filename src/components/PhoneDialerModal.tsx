@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { PhoneCall, Video, MessageSquare, X, Delete, ShieldCheck, Zap, User, UserPlus } from 'lucide-react';
+import { PhoneCall, Video, MessageSquare, X, Delete, ShieldCheck, UserPlus, Globe, ChevronDown } from 'lucide-react';
 import { Language } from '../types';
+import { ALL_INTERNATIONAL_COUNTRIES, CountryInfo } from '../lib/countryCodes';
 
 interface PhoneDialerModalProps {
   isOpen: boolean;
@@ -21,14 +22,15 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const [countryCode, setCountryCode] = useState('+223');
+  const [selectedCountry, setSelectedCountry] = useState<CountryInfo>(ALL_INTERNATIONAL_COUNTRIES[0]);
   const [typedDigits, setTypedDigits] = useState('76 12 34 56');
+  const [isCountryPickerOpen, setIsCountryPickerOpen] = useState(false);
+  const [searchCountry, setSearchCountry] = useState('');
 
-  const fullPhone = `${countryCode} ${typedDigits.trim()}`;
+  const fullPhone = `${selectedCountry.code} ${typedDigits.trim()}`;
 
   const handleKeyPress = (val: string) => {
     if (typedDigits.length < 15) {
-      // Auto format spaces every 2 digits for Mali phone numbers
       const clean = (typedDigits + val).replace(/\s/g, '');
       const formatted = clean.match(/.{1,2}/g)?.join(' ') || clean;
       setTypedDigits(formatted);
@@ -44,6 +46,13 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
     }
   };
 
+  const filteredCountries = ALL_INTERNATIONAL_COUNTRIES.filter(
+    (c) =>
+      c.name.toLowerCase().includes(searchCountry.toLowerCase()) ||
+      c.code.includes(searchCountry) ||
+      c.nameEn.toLowerCase().includes(searchCountry.toLowerCase())
+  );
+
   return (
     <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-slate-900 text-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-800 flex flex-col">
@@ -51,11 +60,11 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
         <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-amber-400 text-emerald-950 flex items-center justify-center font-black text-xs">
-              🇲🇱
+              <Globe className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-amber-300">Composition Clavier KUMA</h3>
-              <p className="text-[10px] text-emerald-300">Appels Chiffrés E2EE & Messagerie</p>
+              <h3 className="font-bold text-sm text-amber-300">Clavier International KUMA</h3>
+              <p className="text-[10px] text-emerald-300">Appels Chiffrés E2EE Monde Entier</p>
             </div>
           </div>
           <button
@@ -67,24 +76,59 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
         </div>
 
         {/* Display Screen */}
-        <div className="p-5 bg-slate-950/90 text-center border-b border-slate-800/80 space-y-1">
+        <div className="p-5 bg-slate-950/90 text-center border-b border-slate-800/80 space-y-1 relative">
           <div className="flex justify-center items-center gap-2">
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="bg-emerald-950 text-amber-300 font-bold text-sm px-2 py-1 rounded-lg border border-emerald-800 focus:outline-none"
+            <button
+              type="button"
+              onClick={() => setIsCountryPickerOpen(!isCountryPickerOpen)}
+              className="bg-emerald-950 hover:bg-emerald-900 text-amber-300 font-bold text-sm px-2.5 py-1.5 rounded-xl border border-emerald-800 flex items-center gap-1.5 focus:outline-none"
             >
-              <option value="+223">🇲🇱 +223</option>
-              <option value="+225">🇨🇮 +225</option>
-              <option value="+221">🇸🇳 +221</option>
-              <option value="+224">🇬🇳 +224</option>
-              <option value="+226">🇧🇫 +226</option>
-              <option value="+33">🇫🇷 +33</option>
-            </select>
+              <span>{selectedCountry.flag}</span>
+              <span>{selectedCountry.code}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            </button>
             <span className="text-2xl font-black font-mono tracking-wider text-white">
               {typedDigits || '00 00 00 00'}
             </span>
           </div>
+
+          <div className="text-[11px] text-slate-400">
+            {selectedCountry.name} ({selectedCountry.region})
+          </div>
+
+          {/* Quick country search dropdown */}
+          {isCountryPickerOpen && (
+            <div className="absolute left-3 right-3 top-16 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-2.5 z-30 text-left">
+              <input
+                type="text"
+                placeholder="Rechercher pays ou indicatif..."
+                value={searchCountry}
+                onChange={(e) => setSearchCountry(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500 mb-2"
+                autoFocus
+              />
+              <div className="max-h-48 overflow-y-auto space-y-1 divide-y divide-slate-800">
+                {filteredCountries.map((c) => (
+                  <button
+                    key={`${c.code}-${c.name}`}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCountry(c);
+                      setIsCountryPickerOpen(false);
+                      setSearchCountry('');
+                    }}
+                    className="w-full px-2 py-1.5 flex items-center justify-between text-xs hover:bg-slate-700 rounded-lg text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{c.flag}</span>
+                      <span className="text-slate-200">{c.name}</span>
+                    </div>
+                    <span className="font-mono text-amber-400 font-bold">{c.code}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Save as contact quick prompt */}
           {typedDigits && onSaveAsContact && (
@@ -104,7 +148,7 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
 
           <div className="flex items-center justify-center gap-1 text-[10px] text-emerald-400 font-mono mt-1">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Sécurisé DTLS-SRTP • Codec Opus 8-24 kbps</span>
+            <span>Sécurisé DTLS-SRTP • Opus Audio HD International</span>
           </div>
         </div>
 
@@ -170,7 +214,7 @@ export const PhoneDialerModal: React.FC<PhoneDialerModalProps> = ({
               className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-95"
               title="Appel Vidéo E2EE"
             >
-              <Video className="w-5 h-5" />
+              <Video className="w-4 h-4" />
             </button>
 
             {/* Start Chat */}

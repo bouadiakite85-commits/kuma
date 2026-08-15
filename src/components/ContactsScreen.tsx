@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Contact, Language, NetworkMode } from '../types';
 import { translations } from '../data/translations';
+import { ALL_INTERNATIONAL_COUNTRIES, findCountryByPhone, CountryInfo } from '../lib/countryCodes';
 import {
   Search,
   UserPlus,
@@ -18,19 +19,10 @@ import {
   Users,
   Smartphone,
   Tag,
-  RotateCcw
+  RotateCcw,
+  Globe,
+  ChevronDown
 } from 'lucide-react';
-
-const COUNTRY_CODES = [
-  { code: '+223', country: 'Mali', flag: '🇲🇱' },
-  { code: '+221', country: 'Sénégal', flag: '🇸🇳' },
-  { code: '+225', country: 'Côte d\'Ivoire', flag: '🇨🇮' },
-  { code: '+224', country: 'Guinée', flag: '🇬🇳' },
-  { code: '+226', country: 'Burkina Faso', flag: '🇧🇫' },
-  { code: '+227', country: 'Niger', flag: '🇳🇪' },
-  { code: '+33', country: 'France', flag: '🇫🇷' },
-  { code: '+1', country: 'USA/Canada', flag: '🇺🇸' }
-];
 
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -40,7 +32,9 @@ const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80'
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
 ];
 
 interface ContactsScreenProps {
@@ -68,15 +62,20 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
 }) => {
   const t = translations[language];
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<'all' | 'favoris' | 'famille' | 'travail' | 'ami' | 'commerce'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'mali' | 'afrique' | 'europe' | 'ameriques' | 'asie' | 'favoris' | 'famille' | 'travail' | 'commerce'>('all');
 
   // Modal State for Add / Edit Contact
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
 
+  // Country selector inside form
+  const [selectedCountry, setSelectedCountry] = useState<CountryInfo>(ALL_INTERNATIONAL_COUNTRIES[0]);
+  const [isCountryPickerOpen, setIsCountryPickerOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [countryRegionFilter, setCountryRegionFilter] = useState<string>('Tous');
+
   // Form State
   const [name, setName] = useState('');
-  const [selectedCountryCode, setSelectedCountryCode] = useState('+223');
   const [rawPhone, setRawPhone] = useState('');
   const [bio, setBio] = useState('');
   const [category, setCategory] = useState<'famille' | 'travail' | 'ami' | 'commerce' | 'autre'>('ami');
@@ -86,7 +85,7 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
 
   const resetForm = () => {
     setName('');
-    setSelectedCountryCode('+223');
+    setSelectedCountry(ALL_INTERNATIONAL_COUNTRIES[0]);
     setRawPhone('');
     setBio('');
     setCategory('ami');
@@ -94,6 +93,8 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
     setIsFavorite(false);
     setFormError('');
     setEditingContact(null);
+    setIsCountryPickerOpen(false);
+    setCountrySearch('');
   };
 
   const handleOpenAdd = () => {
@@ -104,15 +105,12 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
   const handleOpenEdit = (contact: Contact) => {
     setEditingContact(contact);
     setName(contact.name);
-    // Parse phone and code
-    const matchedCode = COUNTRY_CODES.find((c) => contact.phone.startsWith(c.code));
-    if (matchedCode) {
-      setSelectedCountryCode(matchedCode.code);
-      setRawPhone(contact.phone.replace(matchedCode.code, '').trim());
-    } else {
-      setSelectedCountryCode('+223');
-      setRawPhone(contact.phone);
-    }
+    // Detect country
+    const matched = findCountryByPhone(contact.phone);
+    setSelectedCountry(matched);
+    // Strip country code from phone
+    const cleaned = contact.phone.replace(matched.code, '').trim();
+    setRawPhone(cleaned);
     setBio(contact.bio || '');
     setCategory(contact.category || 'ami');
     setSelectedAvatar(contact.avatar);
@@ -127,13 +125,13 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
       setFormError('Veuillez renseigner le nom du contact.');
       return;
     }
-    const cleanPhoneDigits = rawPhone.replace(/\s+/g, '');
-    if (!cleanPhoneDigits || cleanPhoneDigits.length < 6) {
+    const cleanDigits = rawPhone.replace(/\s+/g, '');
+    if (!cleanDigits || cleanDigits.length < 4) {
       setFormError('Veuillez renseigner un numéro de téléphone valide.');
       return;
     }
 
-    const fullPhone = `${selectedCountryCode} ${rawPhone.trim()}`;
+    const fullPhone = `${selectedCountry.code} ${rawPhone.trim()}`;
 
     if (editingContact) {
       onUpdateContact({
@@ -141,7 +139,7 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
         name: name.trim(),
         phone: fullPhone,
         avatar: selectedAvatar,
-        bio: bio.trim() || 'Utilisateur KUMA Mali',
+        bio: bio.trim() || `Contact KUMA (${selectedCountry.name})`,
         category,
         isFavorite
       });
@@ -150,7 +148,7 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
         name: name.trim(),
         phone: fullPhone,
         avatar: selectedAvatar,
-        bio: bio.trim() || 'Disponible sur KUMA Mali',
+        bio: bio.trim() || `Disponible sur KUMA (${selectedCountry.name})`,
         category,
         isFavorite,
         online: true
@@ -161,18 +159,35 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
     resetForm();
   };
 
-  // Filter contacts in real-time
+  // Filter contacts by search query and region / category filters
   const filteredContacts = contacts.filter((c) => {
+    const contactCountry = findCountryByPhone(c.phone);
     const matchesSearch =
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      contactCountry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      contactCountry.nameEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (c.bio && c.bio.toLowerCase().includes(searchQuery.toLowerCase()));
 
     if (!matchesSearch) return false;
 
-    if (activeCategory === 'favoris') return c.isFavorite;
-    if (activeCategory === 'all') return true;
-    return c.category === activeCategory;
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'favoris') return c.isFavorite;
+    if (activeFilter === 'mali') return c.phone.startsWith('+223');
+    if (activeFilter === 'afrique') return contactCountry.region === 'Afrique' && !c.phone.startsWith('+223');
+    if (activeFilter === 'europe') return contactCountry.region === 'Europe';
+    if (activeFilter === 'ameriques') return contactCountry.region === 'Amériques';
+    if (activeFilter === 'asie') return contactCountry.region === 'Asie' || contactCountry.region === 'Moyen-Orient' || contactCountry.region === 'Océanie';
+    return c.category === activeFilter;
+  });
+
+  const filteredCountryList = ALL_INTERNATIONAL_COUNTRIES.filter((c) => {
+    const matchesSearch =
+      c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      c.nameEn.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      c.code.includes(countrySearch);
+    const matchesRegion = countryRegionFilter === 'Tous' || c.region === countryRegionFilter;
+    return matchesSearch && matchesRegion;
   });
 
   return (
@@ -182,16 +197,16 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
         <div className="flex items-center justify-between gap-2">
           <div>
             <h2 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-emerald-700" />
-              <span>{t.contacts}</span>
+              <Globe className="w-4 h-4 text-emerald-700" />
+              <span>{t.contacts} (Mali &amp; Monde)</span>
               <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                {contacts.length} enregistrés
+                {contacts.length} mondiaux
               </span>
             </h2>
             <p className="text-[11px] text-slate-500">
               {language === 'bm'
-                ? "Mɔgɔ kura fara n'i ka welew kɛ teliman"
-                : "Ajoutez vos correspondants pour discuter et envoyer de l'argent"}
+                ? "Dugukolo kuru bɛɛ mɔgɔw ka numero wele kɛcogo"
+                : "Contacts internationaux : Afrique, Diaspora Europe, Amériques, Asie"}
             </p>
           </div>
 
@@ -204,12 +219,12 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
           </button>
         </div>
 
-        {/* Real-time search bar */}
+        {/* Real-time search bar with worldwide capability */}
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Rechercher par nom, numéro (+223...) ou actu..."
+            placeholder="Rechercher par nom, pays (Mali, France, Sénégal...), numéro (+223, +33...)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-8 py-2 bg-slate-100 text-slate-900 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all placeholder:text-slate-400"
@@ -224,68 +239,88 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
           )}
         </div>
 
-        {/* Filter categories pills */}
+        {/* Filter categories & Regional pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar text-xs">
           <button
-            onClick={() => setActiveCategory('all')}
+            onClick={() => setActiveFilter('all')}
             className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors ${
-              activeCategory === 'all'
+              activeFilter === 'all'
                 ? 'bg-emerald-800 text-white font-bold'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
             }`}
           >
-            Tous ({contacts.length})
+            🌐 Tous ({contacts.length})
           </button>
           <button
-            onClick={() => setActiveCategory('favoris')}
+            onClick={() => setActiveFilter('mali')}
             className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
-              activeCategory === 'favoris'
+              activeFilter === 'mali'
+                ? 'bg-emerald-800 text-white font-bold'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            }`}
+          >
+            <span>🇲🇱 Mali</span>
+            <span className="opacity-75">({contacts.filter((c) => c.phone.startsWith('+223')).length})</span>
+          </button>
+          <button
+            onClick={() => setActiveFilter('afrique')}
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+              activeFilter === 'afrique'
+                ? 'bg-emerald-800 text-white font-bold'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            }`}
+          >
+            <span>🌍 Afrique</span>
+            <span className="opacity-75">
+              ({contacts.filter((c) => findCountryByPhone(c.phone).region === 'Afrique' && !c.phone.startsWith('+223')).length})
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveFilter('europe')}
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+              activeFilter === 'europe'
+                ? 'bg-emerald-800 text-white font-bold'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            }`}
+          >
+            <span>🇪🇺 Diaspora Europe</span>
+            <span className="opacity-75">
+              ({contacts.filter((c) => findCountryByPhone(c.phone).region === 'Europe').length})
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveFilter('ameriques')}
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+              activeFilter === 'ameriques'
+                ? 'bg-emerald-800 text-white font-bold'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            }`}
+          >
+            <span>🌎 Amériques</span>
+            <span className="opacity-75">
+              ({contacts.filter((c) => findCountryByPhone(c.phone).region === 'Amériques').length})
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveFilter('asie')}
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+              activeFilter === 'asie'
+                ? 'bg-emerald-800 text-white font-bold'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            }`}
+          >
+            <span>🌏 Asie &amp; Moyen-Orient</span>
+          </button>
+          <button
+            onClick={() => setActiveFilter('favoris')}
+            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+              activeFilter === 'favoris'
                 ? 'bg-amber-500 text-emerald-950 font-bold'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
             }`}
           >
             <Star className="w-3 h-3 fill-current" />
-            Favoris ({contacts.filter((c) => c.isFavorite).length})
-          </button>
-          <button
-            onClick={() => setActiveCategory('famille')}
-            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors ${
-              activeCategory === 'famille'
-                ? 'bg-emerald-800 text-white font-bold'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
-          >
-            👨‍👩‍👧 Famille
-          </button>
-          <button
-            onClick={() => setActiveCategory('travail')}
-            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors ${
-              activeCategory === 'travail'
-                ? 'bg-emerald-800 text-white font-bold'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
-          >
-            💼 Travail
-          </button>
-          <button
-            onClick={() => setActiveCategory('ami')}
-            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors ${
-              activeCategory === 'ami'
-                ? 'bg-emerald-800 text-white font-bold'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
-          >
-            🤝 Amis
-          </button>
-          <button
-            onClick={() => setActiveCategory('commerce')}
-            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors ${
-              activeCategory === 'commerce'
-                ? 'bg-emerald-800 text-white font-bold'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
-          >
-            🛍️ Commerce
+            <span>Favoris ({contacts.filter((c) => c.isFavorite).length})</span>
           </button>
         </div>
       </div>
@@ -294,11 +329,11 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
       <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
         {filteredContacts.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center p-6 text-center text-slate-500">
-            <Users className="w-12 h-12 text-slate-300 mb-2" />
+            <Globe className="w-12 h-12 text-slate-300 mb-2" />
             <p className="font-semibold text-sm text-slate-700">Aucun contact trouvé</p>
             <p className="text-xs text-slate-400 mt-1 max-w-xs">
               {searchQuery
-                ? `Aucun résultat pour "${searchQuery}".`
+                ? `Aucun résultat international pour "${searchQuery}".`
                 : 'Votre carnet de contacts est actuellement vide.'}
             </p>
             <div className="flex items-center gap-2 mt-4">
@@ -321,153 +356,167 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
             </div>
           </div>
         ) : (
-          filteredContacts.map((contact) => (
-            <div
-              key={contact.id}
-              className="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
-            >
-              {/* Left Side: Avatar + Info */}
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={contact.avatar}
-                    alt={contact.name}
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-xs"
-                  />
-                  {contact.online ? (
-                    <span
-                      className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"
-                      title="En ligne sur KUMA"
+          filteredContacts.map((contact) => {
+            const country = findCountryByPhone(contact.phone);
+            return (
+              <div
+                key={contact.id}
+                className="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+              >
+                {/* Left Side: Avatar + Info */}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={contact.avatar}
+                      alt={contact.name}
+                      className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-xs"
                     />
-                  ) : (
+                    {/* Country flag pill on avatar */}
                     <span
-                      className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-slate-400 border-2 border-white rounded-full"
-                      title="Hors-ligne"
-                    />
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm text-slate-900 truncate">{contact.name}</h3>
-                    {contact.isFavorite && (
-                      <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
+                      className="absolute -top-1 -right-1 text-sm bg-white rounded-full p-0.5 shadow-xs border border-slate-200"
+                      title={country.name}
+                    >
+                      {country.flag}
+                    </span>
+                    {contact.online ? (
+                      <span
+                        className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"
+                        title="En ligne sur KUMA"
+                      />
+                    ) : (
+                      <span
+                        className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-slate-400 border-2 border-white rounded-full"
+                        title="Hors-ligne"
+                      />
                     )}
-                    {contact.category && (
-                      <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded border border-slate-200 uppercase flex-shrink-0">
-                        {contact.category}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="font-bold text-sm text-slate-900 truncate">{contact.name}</h3>
+                      {contact.isFavorite && (
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
+                      )}
+                      <span className="text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded-md flex items-center gap-1 flex-shrink-0">
+                        <span>{country.flag}</span>
+                        <span>{country.name}</span>
                       </span>
+                      {contact.category && (
+                        <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded border border-slate-200 uppercase flex-shrink-0">
+                          {contact.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Phone number with international badge */}
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600 font-mono mt-0.5">
+                      <Smartphone className="w-3 h-3 text-emerald-600" />
+                      <span className="font-semibold text-slate-800">{contact.phone}</span>
+                    </div>
+
+                    {/* Bio/Status */}
+                    {contact.bio && (
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">{contact.bio}</p>
                     )}
                   </div>
+                </div>
 
-                  {/* Phone number */}
-                  <div className="flex items-center gap-1.5 text-xs text-slate-600 font-mono mt-0.5">
-                    <Smartphone className="w-3 h-3 text-emerald-600" />
-                    <span className="font-semibold">{contact.phone}</span>
-                  </div>
+                {/* Right Side: Instant Real-Time Actions */}
+                <div className="flex items-center justify-end gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex-shrink-0">
+                  {/* Send Message / Open Chat */}
+                  <button
+                    onClick={() => onStartChatWithContact(contact)}
+                    className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1.5 rounded-xl text-xs transition-colors border border-emerald-200 shadow-xs"
+                    title="Ouvrir la discussion"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-700" />
+                    <span className="hidden xs:inline">Message</span>
+                  </button>
 
-                  {/* Bio/Status */}
-                  {contact.bio && (
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">{contact.bio}</p>
-                  )}
+                  {/* Audio Call */}
+                  <button
+                    onClick={() => onStartCall(contact.name, 'audio', contact.phone, contact.avatar)}
+                    className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition-colors border border-emerald-200 shadow-xs"
+                    title="Appel Audio WebRTC E2EE International"
+                  >
+                    <Phone className="w-4 h-4 text-emerald-700" />
+                  </button>
+
+                  {/* Video Call */}
+                  <button
+                    onClick={() => onStartCall(contact.name, 'video', contact.phone, contact.avatar)}
+                    className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition-colors border border-emerald-200 shadow-xs"
+                    title="Appel Vidéo WebRTC E2EE International"
+                  >
+                    <Video className="w-4 h-4 text-emerald-700" />
+                  </button>
+
+                  {/* Send Mobile Money (Orange, Wave, Moov, International Transfer) */}
+                  <button
+                    onClick={() => onOpenMobileMoney(contact.phone, contact.name)}
+                    className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl transition-colors border border-amber-200 shadow-xs"
+                    title="Transfert Mobile Money & Envoi International"
+                  >
+                    <ArrowDownUp className="w-4 h-4 text-amber-700" />
+                  </button>
+
+                  {/* Toggle Favorite */}
+                  <button
+                    onClick={() => onUpdateContact({ ...contact, isFavorite: !contact.isFavorite })}
+                    className={`p-1.5 rounded-xl transition-colors border shadow-xs ${
+                      contact.isFavorite
+                        ? 'bg-amber-100 text-amber-800 border-amber-300'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-400 border-slate-200'
+                    }`}
+                    title={contact.isFavorite ? 'Retirer des favoris' : 'Mettre en favori'}
+                  >
+                    <Star className={`w-3.5 h-3.5 ${contact.isFavorite ? 'fill-amber-500 text-amber-500' : ''}`} />
+                  </button>
+
+                  {/* Edit */}
+                  <button
+                    onClick={() => handleOpenEdit(contact)}
+                    className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl transition-colors border border-slate-200"
+                    title="Modifier le contact"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Supprimer ${contact.name} de vos contacts ?`)) {
+                        onDeleteContact(contact.id);
+                      }
+                    }}
+                    className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors border border-rose-200"
+                    title="Supprimer le contact"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
-
-              {/* Right Side: Instant Real-Time Actions */}
-              <div className="flex items-center justify-end gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex-shrink-0">
-                {/* Send Message / Open Chat */}
-                <button
-                  onClick={() => onStartChatWithContact(contact)}
-                  className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1.5 rounded-xl text-xs transition-colors border border-emerald-200 shadow-xs"
-                  title="Ouvrir la discussion"
-                >
-                  <MessageSquare className="w-3.5 h-3.5 text-emerald-700" />
-                  <span className="hidden xs:inline">Message</span>
-                </button>
-
-                {/* Audio Call */}
-                <button
-                  onClick={() => onStartCall(contact.name, 'audio', contact.phone, contact.avatar)}
-                  className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition-colors border border-emerald-200 shadow-xs"
-                  title="Appel Audio WebRTC E2EE"
-                >
-                  <Phone className="w-4 h-4 text-emerald-700" />
-                </button>
-
-                {/* Video Call */}
-                <button
-                  onClick={() => onStartCall(contact.name, 'video', contact.phone, contact.avatar)}
-                  className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition-colors border border-emerald-200 shadow-xs"
-                  title="Appel Vidéo WebRTC E2EE"
-                >
-                  <Video className="w-4 h-4 text-emerald-700" />
-                </button>
-
-                {/* Send Mobile Money */}
-                <button
-                  onClick={() => onOpenMobileMoney(contact.phone, contact.name)}
-                  className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl transition-colors border border-amber-200 shadow-xs"
-                  title="Transférer Mobile Money (Orange, Moov, Wave)"
-                >
-                  <ArrowDownUp className="w-4 h-4 text-amber-700" />
-                </button>
-
-                {/* Toggle Favorite */}
-                <button
-                  onClick={() => onUpdateContact({ ...contact, isFavorite: !contact.isFavorite })}
-                  className={`p-1.5 rounded-xl transition-colors border shadow-xs ${
-                    contact.isFavorite
-                      ? 'bg-amber-100 text-amber-800 border-amber-300'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-400 border-slate-200'
-                  }`}
-                  title={contact.isFavorite ? 'Retirer des favoris' : 'Mettre en favori'}
-                >
-                  <Star className={`w-3.5 h-3.5 ${contact.isFavorite ? 'fill-amber-500 text-amber-500' : ''}`} />
-                </button>
-
-                {/* Edit */}
-                <button
-                  onClick={() => handleOpenEdit(contact)}
-                  className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl transition-colors border border-slate-200"
-                  title="Modifier le contact"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-
-                {/* Delete */}
-                <button
-                  onClick={() => {
-                    if (window.confirm(`Supprimer ${contact.name} de vos contacts ?`)) {
-                      onDeleteContact(contact.id);
-                    }
-                  }}
-                  className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors border border-rose-200"
-                  title="Supprimer le contact"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
-      {/* ADD / EDIT CONTACT MODAL */}
+      {/* ADD / EDIT CONTACT MODAL WITH WORLDWIDE COUNTRY PICKER */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 animate-scale-up">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 animate-scale-up max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="bg-emerald-950 p-4 text-white flex items-center justify-between border-b border-emerald-800">
+            <div className="bg-emerald-950 p-4 text-white flex items-center justify-between border-b border-emerald-800 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-amber-400 text-emerald-950 flex items-center justify-center font-bold">
                   <UserPlus className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm text-amber-300">
-                    {editingContact ? 'Modifier le Contact' : 'Nouveau Contact KUMA'}
+                    {editingContact ? 'Modifier le Contact' : 'Nouveau Contact International KUMA'}
                   </h3>
                   <p className="text-[11px] text-emerald-300">
-                    Enregistrement instantané en temps réel
+                    Supporte tous les pays et indicatifs du monde entier
                   </p>
                 </div>
               </div>
@@ -482,8 +531,8 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSaveContact} className="p-4 space-y-3.5">
+            {/* Modal Form Content */}
+            <form onSubmit={handleSaveContact} className="p-4 space-y-3.5 overflow-y-auto flex-1">
               {formError && (
                 <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-2.5 rounded-xl font-medium">
                   {formError}
@@ -525,7 +574,7 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder="ex: Oumou Traoré, Bakary..."
+                  placeholder="ex: Oumou Traoré, Cheikh Ndiaye, Moussa Diakité..."
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white font-medium"
@@ -533,34 +582,106 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
                 />
               </div>
 
-              {/* Phone Number with Country Flag Selector */}
+              {/* Phone Number with Worldwide Country Selector */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Numéro de Téléphone *
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Numéro International *</span>
+                  <span className="text-[10px] text-emerald-700 font-semibold">
+                    {selectedCountry.flag} {selectedCountry.name} ({selectedCountry.code})
+                  </span>
                 </label>
                 <div className="flex items-center gap-2">
-                  <select
-                    value={selectedCountryCode}
-                    onChange={(e) => setSelectedCountryCode(e.target.value)}
-                    className="px-2.5 py-2 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                  <button
+                    type="button"
+                    onClick={() => setIsCountryPickerOpen(!isCountryPickerOpen)}
+                    className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 flex-shrink-0"
                   >
-                    {COUNTRY_CODES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.flag} {c.code} ({c.country})
-                      </option>
-                    ))}
-                  </select>
+                    <span className="text-base">{selectedCountry.flag}</span>
+                    <span>{selectedCountry.code}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                  </button>
+
                   <input
                     type="tel"
-                    placeholder="76 12 34 56"
+                    placeholder={`ex: ${selectedCountry.example}`}
                     value={rawPhone}
                     onChange={(e) => setRawPhone(e.target.value)}
                     className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
                     required
                   />
                 </div>
+
+                {/* Country Picker Dropdown Modal */}
+                {isCountryPickerOpen && (
+                  <div className="mt-2 bg-white border border-slate-300 rounded-2xl shadow-xl p-3 space-y-2 animate-fadeIn z-20">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">Sélectionner un pays mondial</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCountryPickerOpen(false)}
+                        className="text-slate-400 hover:text-slate-600 p-0.5"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Search inside country picker */}
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Rechercher pays ou indicatif (ex: France, +225, Canada...)"
+                        value={countrySearch}
+                        onChange={(e) => setCountrySearch(e.target.value)}
+                        className="w-full pl-8 pr-2 py-1.5 text-xs bg-slate-100 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+
+                    {/* Region tabs in country picker */}
+                    <div className="flex gap-1 overflow-x-auto text-[11px] pb-1">
+                      {['Tous', 'Afrique', 'Europe', 'Amériques', 'Asie', 'Moyen-Orient'].map((reg) => (
+                        <button
+                          key={reg}
+                          type="button"
+                          onClick={() => setCountryRegionFilter(reg)}
+                          className={`px-2 py-0.5 rounded-md whitespace-nowrap ${
+                            countryRegionFilter === reg
+                              ? 'bg-emerald-700 text-white font-bold'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {reg}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Countries List */}
+                    <div className="max-h-40 overflow-y-auto space-y-1 divide-y divide-slate-100 text-xs">
+                      {filteredCountryList.map((c) => (
+                        <button
+                          key={`${c.code}-${c.name}`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCountry(c);
+                            setIsCountryPickerOpen(false);
+                          }}
+                          className={`w-full px-2 py-1.5 rounded-lg flex items-center justify-between text-left hover:bg-emerald-50 transition-colors ${
+                            selectedCountry.name === c.name ? 'bg-emerald-100 font-bold text-emerald-950' : 'text-slate-800'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{c.flag}</span>
+                            <span>{c.name}</span>
+                          </div>
+                          <span className="font-mono text-emerald-700 font-bold">{c.code}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Format Mali : 8 chiffres (Orange: 7x/8x/9x, Moov: 6x, etc.)
+                  Exemple pour {selectedCountry.name} : <span className="font-mono font-bold text-slate-600">{selectedCountry.code} {selectedCountry.example}</span>
                 </p>
               </div>
 
@@ -605,7 +726,7 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder="ex: Artisan Médina Coura, Cousin..."
+                  placeholder="ex: Diaspora Paris, Import Conakry, Cousin Ségou..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Language } from '../types';
+import { ALL_INTERNATIONAL_COUNTRIES, CountryInfo } from '../lib/countryCodes';
 import {
   Phone,
   ShieldCheck,
@@ -14,7 +15,8 @@ import {
   ChevronDown,
   X,
   MessageSquare,
-  KeyRound
+  KeyRound,
+  Search
 } from 'lucide-react';
 
 interface WhatsAppAuthFlowProps {
@@ -24,17 +26,6 @@ interface WhatsAppAuthFlowProps {
   onAuthSuccess: (user: User) => void;
   isInitialOnboarding?: boolean;
 }
-
-const COUNTRY_LIST = [
-  { code: '+223', country: 'Mali', flag: '🇲🇱', example: '76 12 34 56' },
-  { code: '+221', country: 'Sénégal', flag: '🇸🇳', example: '77 123 45 67' },
-  { code: '+225', country: 'Côte d\'Ivoire', flag: '🇨🇮', example: '07 08 09 10 11' },
-  { code: '+224', country: 'Guinée', flag: '🇬🇳', example: '620 12 34 56' },
-  { code: '+226', country: 'Burkina Faso', flag: '🇧🇫', example: '70 12 34 56' },
-  { code: '+227', country: 'Niger', flag: '🇳🇪', example: '90 12 34 56' },
-  { code: '+33', country: 'France', flag: '🇫🇷', example: '06 12 34 56 78' },
-  { code: '+1', country: 'États-Unis / Canada', flag: '🇺🇸', example: '202 555 0199' }
-];
 
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
@@ -53,7 +44,9 @@ export const WhatsAppAuthFlow: React.FC<WhatsAppAuthFlowProps> = ({
 }) => {
   const [step, setStep] = useState<'welcome' | 'phone_input' | 'confirm_dialog' | 'otp_verify' | 'profile_setup' | 'initializing'>('phone_input');
   
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_LIST[0]);
+  const [selectedCountry, setSelectedCountry] = useState<CountryInfo>(ALL_INTERNATIONAL_COUNTRIES[0]);
+  const [isCountryPickerOpen, setIsCountryPickerOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
   const [phoneDigits, setPhoneDigits] = useState('76 12 34 56');
   const [otpValues, setOtpValues] = useState(['1', '2', '3', '4', '5', '6']);
   const [otpTimer, setOtpTimer] = useState(30);
@@ -218,26 +211,69 @@ export const WhatsAppAuthFlow: React.FC<WhatsAppAuthFlowProps> = ({
                 </p>
               </div>
 
-              {/* Country Selection dropdown */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-emerald-400">Pays / Indicatif</label>
-                <div className="relative">
-                  <select
-                    value={selectedCountry.code}
-                    onChange={(e) => {
-                      const found = COUNTRY_LIST.find((c) => c.code === e.target.value);
-                      if (found) setSelectedCountry(found);
-                    }}
-                    className="w-full bg-slate-800 text-white font-bold text-xs p-3 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none pr-8 cursor-pointer"
-                  >
-                    {COUNTRY_LIST.map((c) => (
-                      <option key={c.code} value={c.code} className="bg-slate-900 text-white">
-                        {c.flag} {c.country} ({c.code})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
-                </div>
+              {/* Country Selection dropdown with search */}
+              <div className="space-y-1 relative">
+                <label className="text-xs font-bold text-emerald-400 flex items-center justify-between">
+                  <span>Pays / Indicatif International</span>
+                  <span className="text-[10px] text-slate-400">{selectedCountry.region}</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsCountryPickerOpen(!isCountryPickerOpen)}
+                  className="w-full bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs p-3 rounded-xl border border-slate-700 flex items-center justify-between transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{selectedCountry.flag}</span>
+                    <span>{selectedCountry.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono text-amber-400">
+                    <span>{selectedCountry.code}</span>
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  </div>
+                </button>
+
+                {isCountryPickerOpen && (
+                  <div className="absolute left-0 right-0 top-16 bg-slate-850 border border-slate-700 rounded-2xl shadow-2xl p-2.5 z-30 text-left space-y-2">
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Rechercher pays ou indicatif..."
+                        value={countrySearch}
+                        onChange={(e) => setCountrySearch(e.target.value)}
+                        className="w-full pl-8 pr-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto space-y-1 divide-y divide-slate-800">
+                      {ALL_INTERNATIONAL_COUNTRIES.filter(
+                        (c) =>
+                          c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                          c.nameEn.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                          c.code.includes(countrySearch)
+                      ).map((c) => (
+                        <button
+                          key={`${c.code}-${c.name}`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCountry(c);
+                            setIsCountryPickerOpen(false);
+                            setCountrySearch('');
+                          }}
+                          className={`w-full px-2 py-1.5 flex items-center justify-between text-xs hover:bg-slate-800 rounded-lg text-left ${
+                            selectedCountry.name === c.name ? 'bg-emerald-950/80 text-amber-300 font-bold' : 'text-slate-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">{c.flag}</span>
+                            <span>{c.name}</span>
+                          </div>
+                          <span className="font-mono text-emerald-400 font-bold">{c.code}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Phone Digits Input with Country Flag */}
@@ -258,7 +294,9 @@ export const WhatsAppAuthFlow: React.FC<WhatsAppAuthFlowProps> = ({
                     className="flex-1 bg-slate-800 text-white font-black text-sm p-2.5 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
-                <p className="text-[10px] text-slate-400">Exemple au Mali : 76 12 34 56 ou 66 00 11 22</p>
+                <p className="text-[10px] text-slate-400">
+                  Exemple ({selectedCountry.name}) : <span className="font-mono font-bold text-amber-300">{selectedCountry.example}</span>
+                </p>
               </div>
 
               <div className="bg-emerald-950/60 p-3 rounded-xl border border-emerald-800/80 text-[11px] text-emerald-200 flex items-center gap-2">

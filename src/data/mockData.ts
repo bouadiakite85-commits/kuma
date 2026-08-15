@@ -1,12 +1,13 @@
 import { Chat, User, Contact, StatusStory, CallLog, TableSchema } from '../types';
 
 export const mockContacts: Contact[] = [
+  // 🇲🇱 Mali (National)
   {
     id: 'contact_oumou',
     name: 'Oumou Diarra',
     phone: '+223 76 12 34 56',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    bio: 'Enseignante Bamanankan • Bamako',
+    bio: 'Enseignante Bamanankan • Bamako 🇲🇱',
     category: 'ami',
     isFavorite: true,
     online: true,
@@ -17,7 +18,7 @@ export const mockContacts: Contact[] = [
     name: 'Bakary Coulibaly',
     phone: '+223 66 44 22 11',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    bio: 'Badalabougou • Grin du soir ☕',
+    bio: 'Badalabougou • Grin du soir ☕ 🇲🇱',
     category: 'ami',
     isFavorite: true,
     online: true,
@@ -28,7 +29,7 @@ export const mockContacts: Contact[] = [
     name: 'Fatoumata Traoré',
     phone: '+223 70 88 99 00',
     avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80',
-    bio: 'Commerce Bogolan & Tissus Médina Coura',
+    bio: 'Commerce Bogolan & Tissus Médina Coura 🇲🇱',
     category: 'commerce',
     isFavorite: false,
     online: false,
@@ -40,7 +41,7 @@ export const mockContacts: Contact[] = [
     name: 'Sory Keita',
     phone: '+223 75 33 22 11',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
-    bio: 'Famille Keita Ségou • Disponible',
+    bio: 'Famille Keita Ségou • Disponible 🇲🇱',
     category: 'famille',
     isFavorite: true,
     online: true,
@@ -51,7 +52,7 @@ export const mockContacts: Contact[] = [
     name: 'Drissa Camara',
     phone: '+223 78 90 12 34',
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
-    bio: 'Ingénieur Télécom Mali • KUMA Tech',
+    bio: 'Ingénieur Télécom Mali • KUMA Tech 🇲🇱',
     category: 'travail',
     isFavorite: false,
     online: true,
@@ -62,7 +63,7 @@ export const mockContacts: Contact[] = [
     name: 'Aminata Maïga',
     phone: '+223 65 43 21 00',
     avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-    bio: 'Gao & Bamako • Santé Communautaire',
+    bio: 'Gao & Bamako • Santé Communautaire 🇲🇱',
     category: 'travail',
     isFavorite: false,
     online: false,
@@ -74,11 +75,201 @@ export const mockContacts: Contact[] = [
     name: 'Mahamadou Koné',
     phone: '+223 71 22 33 44',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
-    bio: 'Transfert d\'argent & Kiosque Orange/Moov/Wave',
+    bio: 'Transfert d\'argent & Kiosque Wave/Orange 🇲🇱',
     category: 'commerce',
     isFavorite: false,
     online: true,
     addedAt: '03 Août 2026'
+  },
+
+  // 🌍 Afrique de l'Ouest & Sahel (International)
+  {
+    id: 'contact_cheikh_sn',
+    name: 'Cheikh Ndiaye',
+    phone: '+221 77 654 32 10',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    bio: 'Dakar • Hub Tech & Logistique UEMOA 🇸🇳',
+    category: 'travail',
+    isFavorite: true,
+    online: true,
+    addedAt: '11 Août 2026'
+  },
+  {
+    id: 'contact_kouassi_ci',
+    name: 'Kouassi Yao',
+    phone: '+225 07 08 45 12 33',
+    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80',
+    bio: 'Abidjan Plateau • Agro-business & Cacao 🇨🇮',
+    category: 'commerce',
+    isFavorite: false,
+    online: true,
+    addedAt: '09 Août 2026'
+  },
+  {
+    id: 'contact_barry_gn',
+    name: 'Mamadou Barry',
+    phone: '+224 622 34 56 78',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    bio: 'Conakry Kaloum • Import Bauxite & Transit 🇬🇳',
+    category: 'ami',
+    isFavorite: false,
+    online: false,
+    lastSeen: 'Hier à 14:15',
+    addedAt: '07 Août 2026'
+  },
+  {
+    id: 'contact_ouedraogo_bf',
+    name: 'Wendkuni Ouédraogo',
+    phone: '+226 70 12 34 56',
+    avatar: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=150&auto=format&fit=crop&q=80',
+    bio: 'Ouagadougou • Coopération Sahel & Énergie 🇧🇫',
+    category: 'travail',
+    isFavorite: false,
+    online: true,
+    addedAt: '04 Août 2026'
+  },
+  {
+    id: 'contact_moussa_ne',
+    name: 'Ibrahim Moussa',
+    phone: '+227 90 23 45 67',
+    avatar: 'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=150&auto=format&fit=crop&q=80',
+    bio: 'Niamey • Commerce Électronique & Solaire 🇳🇪',
+    category: 'commerce',
+    isFavorite: false,
+    online: true,
+    addedAt: '02 Août 2026'
+  },
+
+  // 🌍 Afrique Centrale & Maghreb
+  {
+    id: 'contact_mbarga_cm',
+    name: 'Danielle Mbarga',
+    phone: '+237 6 99 12 34 56',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    bio: 'Douala Bonanjo • Fintech & Mobile Banking 🇨🇲',
+    category: 'travail',
+    isFavorite: true,
+    online: true,
+    addedAt: '12 Août 2026'
+  },
+  {
+    id: 'contact_mukendi_cd',
+    name: 'Patrick Mukendi',
+    phone: '+243 81 234 5678',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    bio: 'Kinshasa Gombe • Télécoms & Réseaux Satellitaires 🇨🇩',
+    category: 'ami',
+    isFavorite: false,
+    online: false,
+    lastSeen: 'Il y a 30m',
+    addedAt: '06 Août 2026'
+  },
+  {
+    id: 'contact_elamrani_ma',
+    name: 'Youssef El Amrani',
+    phone: '+212 6 61 23 45 67',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    bio: 'Casablanca Finance City • Partenaire KUMA Maghreb 🇲🇦',
+    category: 'travail',
+    isFavorite: false,
+    online: true,
+    addedAt: '08 Août 2026'
+  },
+
+  // 🇪🇺 Europe & Diaspora Malienne
+  {
+    id: 'contact_moussa_fr',
+    name: 'Moussa Diakité (Paris)',
+    phone: '+33 6 12 34 56 78',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    bio: 'Paris Montreuil • Association Diaspora Malienne 🇫🇷🇲🇱',
+    category: 'famille',
+    isFavorite: true,
+    online: true,
+    addedAt: '13 Août 2026'
+  },
+  {
+    id: 'contact_toure_uk',
+    name: 'Fanta Touré',
+    phone: '+44 7700 900123',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    bio: 'London Canary Wharf • Investissement Afrique 🇬🇧',
+    category: 'travail',
+    isFavorite: false,
+    online: true,
+    addedAt: '14 Août 2026'
+  },
+  {
+    id: 'contact_meyer_de',
+    name: 'Thomas Meyer',
+    phone: '+49 151 23456789',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    bio: 'Berlin • Ingénierie Mesh 6G & Satellite 🇩🇪',
+    category: 'travail',
+    isFavorite: false,
+    online: false,
+    lastSeen: 'Hier à 22:00',
+    addedAt: '05 Août 2026'
+  },
+
+  // 🌎 Amériques (USA, Canada, Brésil)
+  {
+    id: 'contact_cisse_us',
+    name: 'Awa Cissé (Washington)',
+    phone: '+1 202 555 0198',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    bio: 'Washington DC • Projets Développement Sahel 🇺🇸🇲🇱',
+    category: 'famille',
+    isFavorite: true,
+    online: true,
+    addedAt: '10 Août 2026'
+  },
+  {
+    id: 'contact_sanogo_ca',
+    name: 'Seydou Sanogo (Montréal)',
+    phone: '+1 514 555 0142',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
+    bio: 'Montréal Québec • IA & Cloud Computing 🇨🇦',
+    category: 'ami',
+    isFavorite: false,
+    online: true,
+    addedAt: '09 Août 2026'
+  },
+  {
+    id: 'contact_silva_br',
+    name: 'Carlos Silva',
+    phone: '+55 11 98765-4321',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    bio: 'São Paulo • Échanges Agroécologie Sud-Sud 🇧🇷',
+    category: 'commerce',
+    isFavorite: false,
+    online: false,
+    lastSeen: 'Hier',
+    addedAt: '01 Août 2026'
+  },
+
+  // 🌏 Asie & Moyen-Orient
+  {
+    id: 'contact_almansoor_ae',
+    name: 'Tariq Al-Mansoor',
+    phone: '+971 50 123 4567',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    bio: 'Dubaï DIFC • Hub Logistique Mondial & Fret 🇦🇪',
+    category: 'commerce',
+    isFavorite: false,
+    online: true,
+    addedAt: '12 Août 2026'
+  },
+  {
+    id: 'contact_zhang_cn',
+    name: 'Wei Zhang (Guangzhou)',
+    phone: '+86 138 0013 8000',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    bio: 'Guangzhou • Partenaire Électronique & Équipements 🇨🇳',
+    category: 'commerce',
+    isFavorite: false,
+    online: true,
+    addedAt: '14 Août 2026'
   }
 ];
 
