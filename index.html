@@ -1,16 +1,32 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-    <meta name="description" content="An application built with Google AI Studio." />
-    <meta property="og:title" content="My Google AI Studio App" />
-    <meta property="og:description" content="An application built with Google AI Studio." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>KUMA - Messagerie Vocale & Fast Data Mali</title>
+    <meta name="description" content="Application de messagerie instantanée sécurisée et ultra-économique pour le Mali. Notes vocales compressées Opus 8kbps, mode 2G/3G, transferts Mobile Money et appels chiffrés E2EE." />
+
+    <!-- Web App Manifest (Google Play Store & PWA Standard) -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+
+    <!-- Android & PWA Theme Colors -->
+    <meta name="theme-color" content="#064e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="application-name" content="KUMA" />
+    <meta name="apple-mobile-web-app-title" content="KUMA" />
+
+    <!-- Open Graph & Social Cards -->
+    <meta property="og:title" content="KUMA - Messagerie Malienne Sécurisée" />
+    <meta property="og:description" content="Messagerie instantanée pour le Mali avec mode Low-Data, notes vocales Opus et Mobile Money." />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icons/icon-512.svg" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body>
+  <body class="bg-slate-950 select-none antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

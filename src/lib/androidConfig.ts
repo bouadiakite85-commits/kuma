@@ -7,6 +7,7 @@ export const ANDROID_PLAYSTORE_CONFIG = {
   minSdkVersion: 21, // Android 5.0 Lollipop (compatibilité maximale téléphones Mali)
   targetSdkVersion: 34, // Android 14 (Conformité requise Google Play Store 2026)
   compileSdkVersion: 34,
+  bundleFormat: ".AAB (Android App Bundle)",
   
   appDetails: {
     titleFr: "KUMA - Messagerie Vocale & Fast Data Mali",
@@ -19,9 +20,151 @@ FONCTIONNALITÉS CLÉS :
 2. Priorité aux Notes Vocales : Bouton d'enregistrement géant avec compression Codec Opus (8 kbps) et transcription automatique en Bambara et Français.
 3. Multilingue Native : Basculez en un clic entre le Français, le Bamanankan (Bambara), le Fulfulde (Peul), le Soninke et le Tamasheq.
 4. Raccourcis Mobile Money : Effectuez des transferts d'argent instantanés avec Orange Money, Moov Africa et Wave sans quitter vos discussions.
-5. Mode Offline Résilient : Rédigez vos messages sans réseau, ils s'enverront automatiquement dès le retour du réseau.`
+5. Mode Offline Résilient : Rédigez vos messages sans réseau, ils s'enverront automatiquement dès le retour du réseau.
+6. Chiffrement de Bout en Bout (E2EE) : Appels et messages chiffrés avec DTLS-SRTP et Libsignal.`
   }
 };
+
+export const WEB_APP_MANIFEST_JSON = `{
+  "id": "com.kuma.messagerie.mali",
+  "name": "KUMA - Messagerie Vocale & Fast Data Mali",
+  "short_name": "KUMA",
+  "description": "Application de messagerie instantanée sécurisée et ultra-économique pour le Mali. Notes vocales compressées Opus 8kbps, mode 2G/3G, transferts Mobile Money et appels chiffrés de bout en bout (E2EE).",
+  "start_url": "/?utm_source=playstore_aab",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#022c22",
+  "theme_color": "#064e3b",
+  "lang": "fr-ML",
+  "dir": "ltr",
+  "categories": [
+    "communication",
+    "social",
+    "finance",
+    "productivity"
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau Message",
+      "short_name": "Nouveau",
+      "description": "Démarrer une conversation instantanée KUMA",
+      "url": "/?action=new_chat",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Composer Numéro",
+      "short_name": "Clavier",
+      "description": "Composer un numéro de téléphone malien (+223)",
+      "url": "/?action=dialer",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Transfert Mobile Money",
+      "short_name": "SARA",
+      "description": "Orange Money, Moov Money, Wave Mali",
+      "url": "/?action=mobile_money",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Appels Sécurisés E2EE",
+      "short_name": "Appels",
+      "description": "Appels audio 2G Opus & vidéo chiffrés",
+      "url": "/?action=calls",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=720&auto=format&fit=crop&q=80",
+      "sizes": "720x1280",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Messagerie instantanée vocale et texte KUMA Mali"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=1280&auto=format&fit=crop&q=80",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Interface KUMA sur tablette et grand écran"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.kuma.messagerie.mali",
+      "id": "com.kuma.messagerie.mali"
+    }
+  ],
+  "prefer_related_applications": false,
+  "share_target": {
+    "action": "/?action=share",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}`;
+
+export const DIGITAL_ASSET_LINKS_JSON = `[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.kuma.messagerie.mali",
+      "sha256_cert_fingerprints": [
+        "8A:2F:3C:9B:4D:1E:5F:70:9A:B3:CD:EF:12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:12:34:56:78"
+      ]
+    }
+  }
+]`;
+
+export const BUBBLEWRAP_AAB_CLI_COMMANDS = `# 1. Installer l'outil officiel Google pour générer les fichiers .AAB depuis le Web Manifest
+npm install -g @bubblewrap/cli
+
+# 2. Initialiser le projet Android Bundle avec votre manifest.json
+bubblewrap init --manifest=https://kuma-mali.app/manifest.json
+
+# 3. Compiler l'Android App Bundle (.AAB) optimisé et signé pour Google Play Console
+bubblewrap build
+
+# 4. Le fichier généré 'app-release-signed.aab' est prêt à être téléversé dans Google Play Console !`;
 
 export const REQUIRED_ANDROID_PERMISSIONS: AndroidPermissionSpec[] = [
   {

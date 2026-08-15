@@ -1,0 +1,55 @@
+{
+  "packageId": "com.kuma.messagerie.mali",
+  "host": "kuma-mali.app",
+  "name": "KUMA - Messagerie Vocale & Fast Data Mali",
+  "launcherName": "KUMA",
+  "display": "standalone",
+  "themeColor": "#064E3B",
+  "themeColorDark": "#022C22",
+  "navigationColor": "#022C22",
+  "navigationColorDark": "#022C22",
+  "navigationDividerColor": "#00000000",
+  "navigationDividerColorDark": "#00000000",
+  "backgroundColor": "#022C22",
+  "enableNotifications": true,
+  "startUrl": "/?utm_source=playstore_aab",
+  "iconUrl": "https://kuma-mali.app/icons/icon-512.svg",
+  "maskableIconUrl": "https://kuma-mali.app/icons/icon-512.svg",
+  "monochromeIconUrl": "https://kuma-mali.app/icons/icon-512.svg",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "kuma-release-key"
+  },
+  "appVersionName": "1.0.0-MALI",
+  "appVersionCode": 100,
+  "minSdkVersion": 21,
+  "targetSdkVersion": 34,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "value": "8A:2F:3C:9B:4D:1E:5F:70:9A:B3:CD:EF:12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:12:34:56:78"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau Message",
+      "shortName": "Nouveau",
+      "url": "/?action=new_chat",
+      "icon": "icon-192.svg"
+    },
+    {
+      "name": "Composer Numéro",
+      "shortName": "Clavier",
+      "url": "/?action=dialer",
+      "icon": "icon-192.svg"
+    },
+    {
+      "name": "Orange Money / Wave",
+      "shortName": "SARA",
+      "url": "/?action=mobile_money",
+      "icon": "icon-192.svg"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli-v1.20"
+}

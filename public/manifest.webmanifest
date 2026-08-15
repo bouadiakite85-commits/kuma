@@ -1,0 +1,89 @@
+{
+  "id": "com.kuma.messagerie.mali",
+  "name": "KUMA - Messagerie Vocale & Fast Data Mali",
+  "short_name": "KUMA",
+  "description": "Application de messagerie instantanée sécurisée et ultra-économique pour le Mali. Notes vocales compressées Opus 8kbps, mode 2G/3G, transferts Mobile Money et appels chiffrés de bout en bout (E2EE).",
+  "start_url": "/?utm_source=playstore_aab",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#022c22",
+  "theme_color": "#064e3b",
+  "lang": "fr-ML",
+  "dir": "ltr",
+  "categories": [
+    "communication",
+    "social",
+    "finance",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau Message",
+      "short_name": "Nouveau",
+      "description": "Démarrer une conversation instantanée KUMA",
+      "url": "/?action=new_chat",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Composer Numéro",
+      "short_name": "Clavier",
+      "description": "Composer un numéro de téléphone malien (+223)",
+      "url": "/?action=dialer",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Transfert Mobile Money",
+      "short_name": "SARA",
+      "description": "Orange Money, Moov Money, Wave Mali",
+      "url": "/?action=mobile_money",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Appels Sécurisés E2EE",
+      "short_name": "Appels",
+      "description": "Appels audio 2G Opus & vidéo chiffrés",
+      "url": "/?action=calls",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.kuma.messagerie.mali",
+      "id": "com.kuma.messagerie.mali"
+    }
+  ],
+  "prefer_related_applications": false
+}

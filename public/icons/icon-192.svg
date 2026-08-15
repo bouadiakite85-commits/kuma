@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="kumaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <!-- Background Circle / Squircle -->
+  <rect width="192" height="192" rx="42" fill="url(#kumaGrad)" />
+  <!-- Mali Flag Strip on Top Border Accent -->
+  <path d="M 42 0 H 76 V 8 H 42 Z" fill="#10b981" />
+  <path d="M 76 0 H 116 V 8 H 76 Z" fill="#fbbf24" />
+  <path d="M 116 0 H 150 V 8 H 116 Z" fill="#ef4444" />
+  <!-- Center Icon: Chat Bubble with Waveform & Mali Shield -->
+  <g transform="translate(36, 36)">
+    <!-- Chat Bubble -->
+    <path d="M60 0 C 26.8 0, 0 24.6, 0 55 C 0 68.8, 5.6 81.4, 15 91 L 8 116 L 36 108 C 43.6 111.8, 51.6 114, 60 114 C 93.2 114, 120 89.4, 120 59 C 120 28.6, 93.2 0, 60 0 Z" fill="url(#goldGrad)" />
+    <!-- Audio Waveform Bars inside Bubble -->
+    <rect x="30" y="44" width="6" height="26" rx="3" fill="#022c22" />
+    <rect x="42" y="32" width="6" height="50" rx="3" fill="#022c22" />
+    <rect x="54" y="24" width="6" height="66" rx="3" fill="#022c22" />
+    <rect x="66" y="36" width="6" height="42" rx="3" fill="#022c22" />
+    <rect x="78" y="46" width="6" height="22" rx="3" fill="#022c22" />
+    <rect x="90" y="52" width="6" height="10" rx="3" fill="#022c22" />
+  </g>
+</svg>

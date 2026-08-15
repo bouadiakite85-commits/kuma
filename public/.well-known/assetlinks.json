@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.kuma.messagerie.mali",
+      "sha256_cert_fingerprints": [
+        "8A:2F:3C:9B:4D:1E:5F:70:9A:B3:CD:EF:12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:12:34:56:78"
+      ]
+    }
+  }
+]
