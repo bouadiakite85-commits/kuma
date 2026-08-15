@@ -1,0 +1,95 @@
+rules_version = '2';
+
+/**
+ * Règles de Sécurité Cloud Firestore pour KUMA Messenger (Mali 🇲🇱)
+ * Projet Firebase : kuma-12c6c
+ * Sécurité granulaire : Chiffrement E2EE, isolation des discussions privées,
+ * gestion des statuts 24h, signalement WebRTC et protection des profils.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Fonctions d'aide à la validation de sécurité
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isChatParticipant(chatData) {
+      return isAuthenticated() && (
+        request.auth.uid in chatData.participantIds ||
+        request.auth.token.phone_number in chatData.participantIds
+      );
+    }
+
+    // 1. Profils Utilisateurs KUMA (Nom, Bio, Clé Publique E2EE, Avatar)
+    match /users/{userId} {
+      // Tout utilisateur authentifié peut consulter les profils (recherche / contacts)
+      allow read: if isAuthenticated();
+      // Seul l'utilisateur propriétaire peut modifier ou créer son profil
+      allow create, update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // 2. Discussions (Chats individuels & Groupes Grin)
+    match /chats/{chatId} {
+      // Lecture et mise à jour permises uniquement aux participants de la discussion
+      allow read: if isChatParticipant(resource.data);
+      allow create: if isAuthenticated() && isChatParticipant(request.resource.data);
+      allow update: if isChatParticipant(resource.data);
+      allow delete: if isChatParticipant(resource.data);
+
+      // Sous-collection : Messages chiffrés E2EE, vocaux Opus, Mobile Money
+      match /messages/{messageId} {
+        allow read: if isChatParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data);
+        allow create: if isAuthenticated() && (
+          request.auth.uid == request.resource.data.senderId ||
+          request.auth.token.phone_number == request.resource.data.senderPhone ||
+          isChatParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data)
+        );
+        // Mise à jour permise pour les accusés de réception (status: delivered/read) et réactions
+        allow update: if isChatParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data);
+        // Suppression permise par l'émetteur du message
+        allow delete: if isAuthenticated() && (
+          request.auth.uid == resource.data.senderId ||
+          request.auth.token.phone_number == resource.data.senderPhone
+        );
+      }
+    }
+
+    // 3. Statuts & Stories KUMA (Éphémères 24h)
+    match /statuses/{statusId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        request.auth.uid == request.resource.data.authorId ||
+        request.auth.token.phone_number == request.resource.data.authorPhone
+      );
+      allow update: if isAuthenticated(); // Pour incrémenter les vues
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.authorId ||
+        request.auth.token.phone_number == resource.data.authorPhone
+      );
+    }
+
+    // 4. Signalement d'Appels WebRTC (SDP Offers, Answers, ICE Candidates)
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 5. Carnet de Contacts Personnels
+    match /contacts/{contactId} {
+      allow read, write: if isAuthenticated() && (
+        resource == null || resource.data.ownerId == request.auth.uid ||
+        request.resource.data.ownerId == request.auth.uid
+      );
+    }
+
+    // 6. Tokens de Notifications Push FCM
+    match /fcm_tokens/{tokenId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

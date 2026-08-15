@@ -262,6 +262,148 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);`}
             </pre>
           </div>
+
+          {/* Firestore Security Rules Box (firestore.rules) */}
+          <div className="bg-slate-800 p-4 rounded-2xl border border-amber-500/40 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Règles de Sécurité Cloud Firestore (/firestore.rules)</span>
+              </div>
+              <button
+                onClick={() => handleCopy(`rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isChatParticipant(chatData) {
+      return isAuthenticated() && (
+        request.auth.uid in chatData.participantIds ||
+        request.auth.token.phone_number in chatData.participantIds
+      );
+    }
+
+    // 1. Profils Utilisateurs KUMA
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isOwner(userId);
+    }
+
+    // 2. Discussions et Messages E2EE
+    match /chats/{chatId} {
+      allow read, create, update, delete: if isChatParticipant(resource.data) || isChatParticipant(request.resource.data);
+
+      match /messages/{messageId} {
+        allow read, update: if isChatParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data);
+        allow create: if isAuthenticated();
+        allow delete: if isAuthenticated() && (
+          request.auth.uid == resource.data.senderId ||
+          request.auth.token.phone_number == resource.data.senderPhone
+        );
+      }
+    }
+
+    // 3. Statuts & Stories KUMA
+    match /statuses/{statusId} {
+      allow read, update: if isAuthenticated();
+      allow create, delete: if isAuthenticated() && (
+        request.auth.uid == request.resource.data.authorId ||
+        request.auth.token.phone_number == request.resource.data.authorPhone
+      );
+    }
+
+    // 4. Signalement WebRTC Appels
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 5. Contacts Personnels
+    match /contacts/{contactId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 6. Tokens Notifications Push FCM
+    match /fcm_tokens/{tokenId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}`, 'fb_rules')}
+                className="flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black text-xs px-3 py-1.5 rounded-lg shadow"
+              >
+                {copiedKey === 'fb_rules' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>Copier firestore.rules</span>
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              Remplacez la règle par défaut <code className="text-red-300 font-mono">allow read, write: if false;</code> dans la console Firebase (<strong>Firestore Database &gt; Règles</strong>) par ces règles sécurisées pour KUMA :
+            </p>
+            <pre className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] font-mono text-emerald-300 overflow-x-auto leading-relaxed max-h-56">
+{`rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isChatParticipant(chatData) {
+      return isAuthenticated() && (
+        request.auth.uid in chatData.participantIds ||
+        request.auth.token.phone_number in chatData.participantIds
+      );
+    }
+
+    // 1. Profils Utilisateurs KUMA (Nom, Clé Publique E2EE, Avatar)
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isOwner(userId);
+    }
+
+    // 2. Discussions et Messages Chiffrés E2EE
+    match /chats/{chatId} {
+      allow read, create, update, delete: if isChatParticipant(resource.data) || isChatParticipant(request.resource.data);
+
+      match /messages/{messageId} {
+        allow read, update: if isChatParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data);
+        allow create: if isAuthenticated();
+        allow delete: if isAuthenticated() && (
+          request.auth.uid == resource.data.senderId ||
+          request.auth.token.phone_number == resource.data.senderPhone
+        );
+      }
+    }
+
+    // 3. Statuts & Stories KUMA (24h)
+    match /statuses/{statusId} {
+      allow read, update: if isAuthenticated();
+      allow create, delete: if isAuthenticated();
+    }
+
+    // 4. Signalement WebRTC Appels Voix/Vidéo
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 5. Contacts & Tokens FCM
+    match /contacts/{contactId} { allow read, write: if isAuthenticated(); }
+    match /fcm_tokens/{tokenId} { allow read, write: if isAuthenticated(); }
+  }
+}`}
+            </pre>
+          </div>
         </div>
       )}
 

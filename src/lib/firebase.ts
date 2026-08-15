@@ -56,14 +56,27 @@ if (typeof window !== "undefined") {
     });
 }
 
+// Token de vérification de session / reCAPTCHA Enterprise / App Check pour kuma-12c6c
+export const CURRENT_VERIFICATION_TOKEN = "AVweKoiJeX5lmLOTmHSA_N1fr8R71J85bFzb9eIzJkwjNHJxgeBa0gGKrnYWm5TzylXxwZL4GRNpA5txpG5wZh7o1oOcmewVx6yasA7e9uqRCe9paaxV-jwVKH0uz-iP7RiMqffUNCyamnjMxJ_l9MX-";
+
 /**
  * Service de gestion OTP SMS Mali (+223) & Firebase Auth
  */
 export class PhoneAuthService {
   private static verificationId: string | null = null;
+  private static appCheckToken: string = CURRENT_VERIFICATION_TOKEN;
+
+  static setVerificationToken(token: string) {
+    this.appCheckToken = token;
+    console.log(`[Firebase Auth] Token de vérification enregistré: ${token.substring(0, 15)}...`);
+  }
+
+  static getVerificationToken(): string {
+    return this.appCheckToken;
+  }
 
   static async sendOtpSms(phoneNumber: string): Promise<{ success: boolean; verificationId: string; message: string }> {
-    console.log(`[Firebase Auth] Envoi du code OTP SMS au numéro ${phoneNumber}...`);
+    console.log(`[Firebase Auth] Envoi du code OTP SMS au numéro ${phoneNumber}... (Session Token: ${this.appCheckToken.substring(0, 12)}...)`);
     // Format E.164 Mali check (+223 XX XX XX XX)
     const cleanPhone = phoneNumber.replace(/\s+/g, '');
     if (!cleanPhone.startsWith('+223') && !cleanPhone.startsWith('223') && cleanPhone.length < 8) {
@@ -89,7 +102,7 @@ export class PhoneAuthService {
     if (otpCode.length === 6) {
       return {
         success: true,
-        token: `kuma_jwt_token_${Date.now()}`,
+        token: this.appCheckToken || `kuma_jwt_token_${Date.now()}`,
         userPhone: "+223 76 12 34 56"
       };
     }
